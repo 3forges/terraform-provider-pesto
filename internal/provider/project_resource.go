@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	// "strconv"
+	// "strconv".
 
 	"github.com/3forges/pesto-api-client-go"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -322,7 +322,7 @@ func (r *projectResource) Update(ctx context.Context, req resource.UpdateRequest
 	// /!\ /!\ /!\ SO HERE: THIS WOULD MEAN THAT
 	// PESTO API WILL NEED AN ENDPOINT TO
 	// RETRIEVE ALL CONTENT TYPES FROM THEIR
-	// PROJECT ID  (a foreing key in the database of the Pesto API)
+	// PROJECT ID  (a foreign key in the database of the Pesto API)
 	// -----------------------
 	// - this would also mean that we expect
 	//   that a pesto project has a [content_types] List property,

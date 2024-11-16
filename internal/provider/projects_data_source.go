@@ -62,7 +62,7 @@ func (d *projectsDataSource) Schema(_ context.Context, _ datasource.SchemaReques
 	}
 }
 
-// Read refreshes the Terraform state with the latest data
+// Read refreshes the Terraform state with the latest data.
 func (d *projectsDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	var state projectsDataSourceModel
 	tflog.Info(ctx, "Pesto Terraform Provider - Here is an example log done just before calling [client.GetPestoProjects()] for [pesto_projects] datasource")

@@ -10,6 +10,7 @@ linters:
     - durationcheck
     - errcheck
     - exportloopref
+    # - copyloopvar
     - forcetypeassert
     - godot
     - gofmt
@@ -24,4 +25,5 @@ linters:
     - unconvert
     - unparam
     - unused
-    - vet
+    # - vet
+    - govet

@@ -12,7 +12,7 @@ In this folder, you will find all design and concept informations about the CI/C
 golangci-lint run
 ```
 
-Will give in git bash for windows, or in powershell, an stdout starting by:
+Gave me, on 16th of November 2024, in git bash for windows, or in powershell, an stdout starting by:
 
 ```bash
 $ golangci-lint run
@@ -94,6 +94,10 @@ linters:
 And I end up with a last new issue advertised by `golangci-lint`, about the go version I have installed on my computer:
 
 ![go version issue](./images/golang-ci-run.ex1.go.version.issue.PNG)
+
+By the time I ran into the above issues (the 16th of November 2024), the latest release version of GOlang was `1.23.3`:
+
+![latest go release on 16th nov 2024](./images/latest.go.version.16.11.2024.PNG)
 
 At this point, I have two options, to solve this last issue:
 

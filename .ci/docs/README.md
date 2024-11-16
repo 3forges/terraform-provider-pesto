@@ -109,7 +109,7 @@ This is why I will, on my computer, I chose:
 
 ```bash
 export GOLANGCI_LINT_VERSION='v1.60.1'
-./tools/utils/installation/golangci-lint/windows/golangci-lint.sh
+./.ci/utils/installation/golangci-lint/windows/golangci-lint.sh
 
 golangci-lint run
 

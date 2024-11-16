@@ -133,6 +133,15 @@ Finally, when I will upgrade version of golang to `go1.22`, I will then:
 
 ### About GoReleaser
 
+* Install go releaser in a specific version, uisng git bash for Windows:
+
+```bash
+export GORELEASER_VERSION="v2.4.5"
+chmod +x ./.ci/utils/installation/goreleaser/windows/goreleaser.sh
+./.ci/utils/installation/goreleaser/windows/goreleaser.sh
+
+```
+
 ## References
 
 * <https://golangci-lint.run>

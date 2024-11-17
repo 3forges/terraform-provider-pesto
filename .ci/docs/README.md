@@ -142,6 +142,42 @@ chmod +x ./.ci/utils/installation/goreleaser/windows/goreleaser.sh
 
 ```
 
+Then you can run the build:
+
+```bash
+
+# ---
+# build all executables for 
+# all OS and CPUARCH as 
+# configured in './.goreleaser.yml'
+# - 
+# 
+goreleaser build --snapshot --single-target --clean
+
+# ---
+# build only for current GOOS GOARCH
+goreleaser build --snapshot --single-target --clean 
+
+# ---
+# To install the executable in GOPATH/bin
+goreleaser build --snapshot --single-target --clean --output "$(go env GOPATH)/bin/terraform-provider-pesto_v0.0.0-SNAPSHOT-57e8dfe.exe"
+
+
+```
+
+![]
+
+
+
+* To "test verything before actually running a release", we can use _dry run_ commands, see <https://goreleaser.com/quick-start/#dry-run>
+
+Very important, goreleaser has native support for monorepo pattern (and it can perhaps build n publish npm packages?):
+
+* <https://goreleaser.com/customization/monorepo/>
+* golang and npm packages:
+  * <https://github.com/evg4b/goreleaser-npm-publisher>
+  * <https://medium.com/xendit-engineering/how-we-repurposed-npm-to-publish-and-distribute-our-go-binaries-for-internal-cli-23981b80911b>
+
 ## References
 
 * <https://golangci-lint.run>

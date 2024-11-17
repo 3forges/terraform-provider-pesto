@@ -212,7 +212,6 @@ goreleaser release --skip=publish --clean
 * <https://golangci-lint.run>
 * <https://golangci-lint.run/welcome/install/>
 * <https://golangci-lint.run/welcome/quick-start/>
-* <https://thekevinwang.com/2023/10/05/build-publish-terraform-provider>
 * To "test everything before actually running a release", we can use _dry run_ commands, see <https://goreleaser.com/quick-start/#dry-run>
 
 Very important, goreleaser has native support for monorepo pattern (and it can perhaps build n publish npm packages?):
@@ -221,3 +220,9 @@ Very important, goreleaser has native support for monorepo pattern (and it can p
 * golang and npm packages:
   * <https://github.com/evg4b/goreleaser-npm-publisher>
   * <https://medium.com/xendit-engineering/how-we-repurposed-npm-to-publish-and-distribute-our-go-binaries-for-internal-cli-23981b80911b>
+
+* Circle CI Orb for `goreleaser`: <https://circleci.com/developer/orbs/orb/hubci/goreleaser>
+
+Some tutorials using gorelease:
+
+* <https://thekevinwang.com/2023/10/05/build-publish-terraform-provider>

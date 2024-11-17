@@ -116,11 +116,57 @@ mkdir -p $(go env GOPATH)/bin/
 
 cp ${TMP_INSTALL_OPS_HOME}/deflated/goreleaser.exe $(go env GOPATH)/bin/
 
+mkdir -p $(go env GOPATH)/bin/goreleaser.${GORELEASER_VERSION}/
+
+cp -fR ${TMP_INSTALL_OPS_HOME}/deflated/* $(go env GOPATH)/bin/goreleaser.${GORELEASER_VERSION}/
+
 rm -fr ${TMP_INSTALL_OPS_HOME}
+
+installAutoCompletions () {
+
+# ---
+# Install auto-completions
+
+# - bash
+if [ -f ~/.local/share/bash-completion/completions/goreleaser.bash ]; then
+  rm ~/.local/share/bash-completion/completions/goreleaser.bash
+fi;
+
+mkdir -p ~/.local/share/bash-completion/completions/
+cp $(go env GOPATH)/bin/goreleaser.${GORELEASER_VERSION}/completions/goreleaser.bash ~/.local/share/bash-completion/completions
+export RC_FILE_CONTAINS_SRC_CMD=$(cat ~/.bashrc | grep 'source ~/.local/share/bash-completion/completions/goreleaser.bash')
+if [ "x${RC_FILE_CONTAINS_SRC_CMD}" == "x" ]; then
+  echo 'source ~/.local/share/bash-completion/completions/goreleaser.bash' | tee -a ~/.bashrc
+fi;
+
+# - fish
+if [ -f ~/.local/share/bash-completion/completions/goreleaser.fish ]; then
+  rm ~/.local/share/bash-completion/completions/goreleaser.fish
+fi;
+
+mkdir -p ~/.local/share/fish-completion/completions/
+cp $(go env GOPATH)/bin/goreleaser.${GORELEASER_VERSION}/completions/goreleaser.fish ~/.local/share/fish-completion/completions
+export RC_FILE_CONTAINS_SRC_CMD=$(cat ~/.bashrc | grep 'source ~/.local/share/bash-completion/completions/goreleaser.fish')
+if [ "x${RC_FILE_CONTAINS_SRC_CMD}" == "x" ]; then
+  echo 'source ~/.local/share/fish-completion/completions/goreleaser.fish' | tee -a ~/.fishrc
+fi;
+
+# - zsh
+if [ -f ~/.local/share/bash-completion/completions/goreleaser.zsh ]; then
+  rm ~/.local/share/bash-completion/completions/goreleaser.zsh
+fi;
+
+mkdir -p ~/.local/share/zsh-completion/completions/
+cp $(go env GOPATH)/bin/goreleaser.${GORELEASER_VERSION}/completions/goreleaser.zsh ~/.local/share/zsh-completion/completions
+export RC_FILE_CONTAINS_SRC_CMD=$(cat ~/.bashrc | grep 'source ~/.local/share/bash-completion/completions/goreleaser.zshrc')
+if [ "x${RC_FILE_CONTAINS_SRC_CMD}" == "x" ]; then
+  echo 'source ~/.local/share/zsh-completion/completions/goreleaser.zsh' | tee -a ~/.zshrc
+fi;
+}
+
+installAutoCompletions
+
 
 cd ${WHERE_AM_I}
 
 goreleaser  --version
-exit 0
-
-goreleaser version

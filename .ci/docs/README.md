@@ -162,7 +162,14 @@ goreleaser build --snapshot --single-target --clean
 # To install the executable in GOPATH/bin
 goreleaser build --snapshot --single-target --clean --output "$(go env GOPATH)/bin/terraform-provider-pesto_v0.0.0-SNAPSHOT-57e8dfe.exe"
 
+##### release dry run
 
+# ---
+# to get my GPG Key fingerprint: [gpg --list-keys --with-fingerprint]
+# 
+# $env:GPG_FINGERPRINT = "1356 7525 DED4 F79A 0503  BBFB 7B19 A8E1 574C 2883"
+
+export GPG_FINGERPRINT="1356 7525 DED4 F79A 0503  BBFB 7B19 A8E1 574C 2883"
 ```
 
 ![]
@@ -183,3 +190,4 @@ Very important, goreleaser has native support for monorepo pattern (and it can p
 * <https://golangci-lint.run>
 * <https://golangci-lint.run/welcome/install/>
 * <https://golangci-lint.run/welcome/quick-start/>
+* <https://thekevinwang.com/2023/10/05/build-publish-terraform-provider>

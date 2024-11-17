@@ -177,9 +177,9 @@ goreleaser release --skip=publish --clean
 
 **_Building a snapshot example output:_**
 
-![ccc](./images/goreleaser.build.snapshot.PNG)
+![goreleaser snapshot build](./images/goreleaser.build.snapshot.PNG)
 
-![ccc](./images/goreleaser.build.snapshot.single.target.PNG)
+![goreleaser snapshot build only one](./images/goreleaser.build.snapshot.single.target.PNG)
 
 **_Runnning a release dry run example output:_**
 
@@ -221,7 +221,9 @@ Very important, goreleaser has native support for monorepo pattern (and it can p
   * <https://github.com/evg4b/goreleaser-npm-publisher>
   * <https://medium.com/xendit-engineering/how-we-repurposed-npm-to-publish-and-distribute-our-go-binaries-for-internal-cli-23981b80911b>
 
-* Circle CI Orb for `goreleaser`: <https://circleci.com/developer/orbs/orb/hubci/goreleaser>
+* Circle CI Orb for `goreleaser`:
+  * <https://circleci.com/developer/orbs/orb/hubci/goreleaser>
+  * <https://github.com/hubci/goreleaser-orb>
 
 Some tutorials using `goreleaser`:
 

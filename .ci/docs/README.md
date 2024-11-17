@@ -223,6 +223,6 @@ Very important, goreleaser has native support for monorepo pattern (and it can p
 
 * Circle CI Orb for `goreleaser`: <https://circleci.com/developer/orbs/orb/hubci/goreleaser>
 
-Some tutorials using gorelease:
+Some tutorials using `goreleaser`:
 
 * <https://thekevinwang.com/2023/10/05/build-publish-terraform-provider>

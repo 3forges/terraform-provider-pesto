@@ -169,7 +169,7 @@ goreleaser build --snapshot --single-target --clean --output "$(go env GOPATH)/b
 # 
 # $env:GPG_FINGERPRINT = "1356 7525 DED4 F79A 0503  BBFB 7B19 A8E1 574C 2883"
 
-export GPG_FINGERPRINT="1356 7525 DED4 F79A 0503  BBFB 7B19 A8E1 574C 2883"
+export GPG_FINGERPRINT="1356 7525 DED4 F79A 0503 BBFB 7B19 A8E1 574C 2883"
 goreleaser release --skip=publish --clean
 
 ```

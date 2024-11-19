@@ -124,7 +124,7 @@ Et voilà, no more warning, only the 3 lint error messages are left, and I am no
 
 ![Et voilà, no more versions warning](./images/golang-ci-run.ex1.all.issues.solved.for.go.1.21.PNG)
 
-I then edited the 3 sources files to solve the clearly statedlint errors, and git commit and pushed.
+I then edited the 3 sources files to solve the clearly stated lint errors, and git commit and pushed.
 
 Finally, when I will upgrade version of golang to `go1.22`, I will then:
 
@@ -155,7 +155,7 @@ Then you can run the build:
 goreleaser build --snapshot --single-target --clean
 
 # ---
-# build only for current GOOS GOARCH
+# build only for current GOOS GOARCH: typial for a local dev env.
 goreleaser build --snapshot --single-target --clean 
 
 # ---
@@ -163,12 +163,13 @@ goreleaser build --snapshot --single-target --clean
 goreleaser build --snapshot --single-target --clean --output "$(go env GOPATH)/bin/terraform-provider-pesto_v0.0.0-SNAPSHOT-57e8dfe.exe"
 
 ##### release dry run
-
+# > requires a semver-compatible git tag on the latest commit
+# > requires a GPG key on the machine
 # ---
 # 
 # to get my GPG Key fingerprint: [gpg --list-keys]
 # 
-# $env:GPG_FINGERPRINT = "1356 7525 DED4 F79A 0503  BBFB 7B19 A8E1 574C 2883"
+# $env:GPG_FINGERPRINT = "4CC5E793F7519D9909CDFB3B5A45A04855E865D8"
 
 export GPG_FINGERPRINT="4CC5E793F7519D9909CDFB3B5A45A04855E865D8"
 goreleaser release --skip=publish --clean

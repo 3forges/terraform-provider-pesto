@@ -38,6 +38,11 @@ The error I get is about an "_unexpected end of JSON input_", and:
   * <https://github.com/hashicorp/terraform-provider-external/issues/23>
   * <https://github.com/hashicorp/terraform-provider-google/issues/7449>
 
+
+OK I fixed the issue, it's just that the creation endpoint returned HTTP code 204 instead of returning HTTP code 201 with the created object in the API response.
+
+Now all creation, update, and delete work.
+
 ## How to use the Pesto Provider
 
 * Create or update all by running:

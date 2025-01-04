@@ -21,12 +21,12 @@ resource "pesto_project" "gidhora_project" {
 }
 
 resource "pesto_content_type" "contenttype1_with_tofu" {
-  project_id             = pesto_project.gidhora_project.id // "${pesto_project.gidhora_project.id}"
-  name                   = "chaussettes"
-  frontmatter_definition = "rubbish_Frontmatter_Def"
+  project_id = pesto_project.gidhora_project.id // "${pesto_project.gidhora_project.id}"
+  name       = "chaussettes"
+  // frontmatter_definition = "rubbish_Frontmatter_Def"
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter;"
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter {}"
-  // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter { \n  includeInJumbo: boolean \n  size: number \n  price: number \n  color: string \n  trademark: string \n  isFromNewClothesCollection: boolean \n}"
-  description = "A pesto content type create by terraformation"
-  depends_on  = [pesto_project.gidhora_project]
+  frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter { \n  addedByTerraformationByUpdatingFMdef: boolean \n  includeInJumbo: boolean \n  size: number \n  price: number \n  color: string \n  trademark: string \n  isFromNewClothesCollection: boolean \n}"
+  description            = "A pesto content type create by terraformation"
+  depends_on             = [pesto_project.gidhora_project]
 }

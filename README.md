@@ -1,8 +1,8 @@
-> Jean-Baptiste Lasselle: This terrform plugin soruce code was created by first git cloning https://github.com/hashicorp/terraform-provider-scaffolding-framework, see [`./README.SCAFFOLDING.md`](./README.SCAFFOLDING.md)
+> Jean-Baptiste Lasselle: This terrform plugin source code was created by first git cloning https://github.com/hashicorp/terraform-provider-scaffolding-framework, see [`./README.SCAFFOLDING.md`](./README.SCAFFOLDING.md)
 
 # Terraform Provider Pesto
 
-This epository contains the terraform porvider for the [Pesto API](https://github.com/3forges/pesto-api), containing:
+This repository contains the terraform provider for the [Pesto API](https://github.com/3forges/pesto-api), containing:
 
 - A resource and a data source (`internal/provider/`),
 - Examples (`examples/`) and generated documentation (`docs/`),
@@ -21,6 +21,19 @@ This epository contains the terraform porvider for the [Pesto API](https://githu
 
 ```shell
 go install
+```
+
+_TO upgrade version of the `pesto-api-client-go`_ I once had to run:
+
+```bash
+Utilisateur@Utilisateur-PC MINGW64 ~/terraform-provider-pesto (feature/add/circleci/pipeline)
+$ export GOPRIVATE=github.com
+
+Utilisateur@Utilisateur-PC MINGW64 ~/terraform-provider-pesto (feature/add/circleci/pipeline)
+$ go get github.com/3forges/pesto-api-client-go@v0.0.12
+go: downloading github.com/3forges/pesto-api-client-go v0.0.12
+go: upgraded github.com/3forges/pesto-api-client-go v0.0.11 => v0.0.12
+
 ```
 
 ## Using the provider
@@ -46,9 +59,9 @@ make testacc
 ```
 -->
 
-We will describe a 3 steps procedure youcan follow, to setup yoru dev envrionment.
+We will describe a 3 steps procedure you can follow, to setup your dev envrionment.
 
-You will end up with the source code of this provider inside a folder of your choice, and inside a `./examples/myTest/` subfolder that you will create, you will write terraform code (`*.tf`) on which you will run `tofu apply`, to test using the executble you built from the source code of the provider.
+You will end up with the source code of this provider inside a folder of your choice, and inside a `./examples/myTest/` subfolder that you will create, you will write terraform code (`*.tf`) on which you will run `tofu apply`, to test using the executable you built from the source code of the provider.
 
 > N.B: In the below proceudre, the terraform code (`*.tf`) on which you will run `tofu apply`, to test using the executble you built from the source code of the provider, may be any folder on your machine, even if it is not a subfolder of the folder where you git cloned this repo.
 

@@ -148,8 +148,8 @@ func (p *pestoProvider) Configure(ctx context.Context, req provider.ConfigureReq
 	if host == "" {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("host"),
-			"Missing HashiCups API Host",
-			"The provider cannot create the HashiCups API client as there is a missing or empty value for the HashiCups API host. "+
+			"Missing Pesto API Host",
+			"The provider cannot create the Pesto API client as there is a missing or empty value for the Pesto API host. "+
 				"Set the host value in the configuration or use the PESTO_HOST environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
@@ -158,8 +158,8 @@ func (p *pestoProvider) Configure(ctx context.Context, req provider.ConfigureReq
 	if username == "" {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("username"),
-			"Missing HashiCups API Username",
-			"The provider cannot create the HashiCups API client as there is a missing or empty value for the HashiCups API username. "+
+			"Missing Pesto API Username",
+			"The provider cannot create the Pesto API client as there is a missing or empty value for the Pesto API username. "+
 				"Set the username value in the configuration or use the PESTO_USERNAME environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
@@ -168,8 +168,8 @@ func (p *pestoProvider) Configure(ctx context.Context, req provider.ConfigureReq
 	if password == "" {
 		resp.Diagnostics.AddAttributeError(
 			path.Root("password"),
-			"Missing HashiCups API Password",
-			"The provider cannot create the HashiCups API client as there is a missing or empty value for the HashiCups API password. "+
+			"Missing Pesto API Password",
+			"The provider cannot create the Pesto API client as there is a missing or empty value for the Pesto API password. "+
 				"Set the password value in the configuration or use the PESTO_PASSWORD environment variable. "+
 				"If either is already set, ensure the value is not empty.",
 		)
@@ -188,15 +188,15 @@ func (p *pestoProvider) Configure(ctx context.Context, req provider.ConfigureReq
 	client, err := pesto.NewClient(&host, &username, &password)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Create HashiCups API Client",
-			"An unexpected error occurred when creating the HashiCups API client. "+
+			"Unable to Create Pesto API Client",
+			"An unexpected error occurred when creating the Pesto API client. "+
 				"If the error is not clear, please contact the provider developers.\n\n"+
-				"HashiCups Client Error: "+err.Error(),
+				"Pesto Client Error: "+err.Error(),
 		)
 		return
 	}
 
-	// Make the HashiCups client available during DataSource and Resource
+	// Make the Pesto client available during DataSource and Resource
 	// type Configure methods.
 	resp.DataSourceData = client
 	resp.ResourceData = client
@@ -229,5 +229,6 @@ func (p *pestoProvider) DataSources(_ context.Context) []func() datasource.DataS
 func (p *pestoProvider) Resources(_ context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
 		NewProjectResource,
+		NewContentTypeResource,
 	}
 }

@@ -47,10 +47,15 @@ func (r *contentTypeResource) Schema(_ context.Context, _ resource.SchemaRequest
 					stringplanmodifier.UseStateForUnknown(),
 				},
 			},
-			"last_updated": schema.StringAttribute{
-				Computed: true,
+			"project_id": schema.StringAttribute{
+				Required: true,
+				Computed: false,
 			},
 			"name": schema.StringAttribute{
+				Required: true,
+				Computed: false,
+			},
+			"frontmatter_definition": schema.StringAttribute{
 				Required: true,
 				Computed: false,
 			},
@@ -58,13 +63,8 @@ func (r *contentTypeResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Required: true,
 				Computed: false,
 			},
-			"git_ssh_uri": schema.StringAttribute{
-				Required: true,
-				Computed: false,
-			},
-			"git_service_provider": schema.StringAttribute{
-				Required: true,
-				Computed: false,
+			"last_updated": schema.StringAttribute{
+				Computed: true,
 			},
 
 			///////////////////////////////////////////
@@ -111,11 +111,11 @@ func (r *contentTypeResource) Schema(_ context.Context, _ resource.SchemaRequest
 
 // contentTypeResourceModel maps the resource schema data.
 type contentTypeResourceModel struct {
-	ID                   types.String `tfsdk:"id"`
-	Name                 types.String `tfsdk:"name"`
-	Description          types.String `tfsdk:"description"`
-	Git_ssh_uri          types.String `tfsdk:"git_ssh_uri"`
-	Git_service_provider types.String `tfsdk:"git_service_provider"`
+	ID                     types.String `tfsdk:"id"`
+	Project_id             types.String `tfsdk:"project_id"`
+	Name                   types.String `tfsdk:"name"`
+	Frontmatter_definition types.String `tfsdk:"frontmatter_definition"`
+	Description            types.String `tfsdk:"description"`
 	// PestoContentTypes []pestoContentTypeModel `tfsdk:"pesto_content_types"`
 	LastUpdated types.String `tfsdk:"last_updated"`
 }
@@ -142,45 +142,45 @@ func (r *contentTypeResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	// Generate API request body from plan
-	apiRequestBody := pesto.CreatePestoProjectPayload{
+	apiRequestBody := pesto.CreatePestoContentTypePayload{
 		// ID:                   plan.ID.ValueString(),
-		Name:                 plan.Name.ValueString(),
-		Description:          plan.Description.ValueString(),
-		Git_ssh_uri:          plan.Git_ssh_uri.ValueString(),
-		Git_service_provider: plan.Git_service_provider.ValueString(),
+		Project_id:             plan.Project_id.ValueString(),
+		Name:                   plan.Name.ValueString(),
+		Frontmatter_definition: plan.Frontmatter_definition.ValueString(),
+		Description:            plan.Description.ValueString(),
 	}
-	// var projectsToCreate []pesto.PestoProject
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - CREATE - Creating pesto project of name : %v \n", plan.Name))
-	//.Printf("CReating pesto project of name : %v \n",projectsToCreate[i].Name)
+	// var projectsToCreate []pesto.PestoContentType
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - Creating pesto content type of name : %v \n", plan.Name))
+	//.Printf("CReating pesto content type of name : %v \n",projectsToCreate[i].Name)
 	// Create new project
-	project, err := r.client.CreatePestoProject(ctx, apiRequestBody, nil)
-	tflog.Debug(ctx, fmt.Sprintf("PROJECT RESOURCE - CREATE - here is the tfsdk response object: %v", resp))
-	tflog.Debug(ctx, fmt.Sprintf("PROJECT RESOURCE - CREATE - here is the project returned from Pesto API: %v", project))
+	contentType, err := r.client.CreatePestoContentType(ctx, apiRequestBody, nil)
+	tflog.Debug(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - here is the tfsdk response object: %v", resp))
+	tflog.Debug(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - here is the content type returned from Pesto API: %v", contentType))
 
-	var isProjectNil string
+	var isContentTypeNil string
 
-	if project != nil {
-		isProjectNil = "NO pesto project object is not NIL"
+	if contentType != nil {
+		isContentTypeNil = "NO pesto content type object is not NIL"
 	} else {
-		isProjectNil = "YES pesto project object is NIL!"
+		isContentTypeNil = "YES pesto content type object is NIL!"
 	}
-	tflog.Debug(ctx, fmt.Sprintf("PROJECT RESOURCE - CREATE - Is the project returned from Pesto API NIL ?: %v", isProjectNil))
+	tflog.Debug(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - Is the content type returned from Pesto API NIL ?: %v", isContentTypeNil))
 
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error creating pesto project",
-			"Could not create pesto project, unexpected error: "+err.Error(),
+			"Error creating pesto content type",
+			"Could not create pesto content type, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - CREATE - Successfully created pesto project of name : %v \n", project.Name))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - Successfully created pesto content type of name : %v \n", contentType.Name))
 	plan.ID = types.StringValue(plan.ID.ValueString())
 	plan = contentTypeResourceModel{
-		ID:                   types.StringValue(project.ID),
-		Name:                 types.StringValue(project.Name),
-		Description:          types.StringValue(project.Description),
-		Git_ssh_uri:          types.StringValue(project.Git_ssh_uri),
-		Git_service_provider: types.StringValue(project.Git_service_provider),
+		ID:                     types.StringValue(contentType.ID),
+		Project_id:             types.StringValue(contentType.Project_id),
+		Name:                   types.StringValue(contentType.Name),
+		Frontmatter_definition: types.StringValue(contentType.Frontmatter_definition),
+		Description:            types.StringValue(contentType.Description),
 	}
 	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
 
@@ -205,14 +205,14 @@ func (r *contentTypeResource) Read(ctx context.Context, req resource.ReadRequest
 		return
 	}
 
-	// Get refreshed project value from HashiCups
-	project, err := r.client.GetPestoProject(state.ID.ValueString())
-	tflog.Debug(ctx, fmt.Sprintf("PROJECT RESOURCE - READ - here is the tfsdk response object: %v", resp))
-	tflog.Debug(ctx, fmt.Sprintf("PROJECT RESOURCE - CREATE - here is the project returned by GetPestoProject from Pesto API: %v", project))
+	// Get refreshed content type value from HashiCups
+	contentType, err := r.client.GetPestoContentType(state.ID.ValueString())
+	tflog.Debug(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - READ - here is the tfsdk response object: %v", resp))
+	tflog.Debug(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - here is the content type returned by GetPestoContentType from Pesto API: %v", contentType))
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Reading Pesto Pesto Project",
-			"Could not read Pesto Pesto Project ID "+state.ID.ValueString()+": "+err.Error(),
+			"Error Reading Pesto Pesto Content Type",
+			"Could not read Pesto Pesto Content Type ID "+state.ID.ValueString()+": "+err.Error(),
 		)
 		return
 	}
@@ -220,11 +220,11 @@ func (r *contentTypeResource) Read(ctx context.Context, req resource.ReadRequest
 	// Overwrite items with refreshed state
 
 	state = contentTypeResourceModel{
-		ID:                   types.StringValue(project.ID),
-		Name:                 types.StringValue(project.Name),
-		Description:          types.StringValue(project.Description),
-		Git_ssh_uri:          types.StringValue(project.Git_ssh_uri),
-		Git_service_provider: types.StringValue(project.Git_service_provider),
+		ID:                     types.StringValue(contentType.ID),
+		Project_id:             types.StringValue(contentType.Project_id),
+		Name:                   types.StringValue(contentType.Name),
+		Frontmatter_definition: types.StringValue(contentType.Frontmatter_definition),
+		Description:            types.StringValue(contentType.Description),
 	}
 	// - A read operation does not modify the state, so i don't set [state.LastUpdated]
 	// state.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
@@ -248,7 +248,7 @@ func (r *contentTypeResource) Update(ctx context.Context, req resource.UpdateReq
 		return
 	}
 
-	// retrieve project ID from state (not plan):
+	// retrieve content type ID from state (not plan):
 	// Not useful anymore, instead I use
 	// [stringplanmodifier.UseStateForUnknown()] in
 	// Schema! Neat!
@@ -264,57 +264,58 @@ func (r *contentTypeResource) Update(ctx context.Context, req resource.UpdateReq
 
 	// Generate API request body from plan
 
-	apiRequestBody := pesto.UpdatePestoProjectPayload{
+	apiRequestBody := pesto.UpdatePestoContentTypePayload{
 		ID: plan.ID.ValueString(),
 		// ID:                   state.ID.ValueString(),
-		Name:                 plan.Name.ValueString(),
-		Description:          plan.Description.ValueString(),
-		Git_ssh_uri:          plan.Git_ssh_uri.ValueString(),
-		Git_service_provider: plan.Git_service_provider.ValueString(),
+		Project_id:             plan.Project_id.ValueString(),
+		Name:                   plan.Name.ValueString(),
+		Frontmatter_definition: plan.Frontmatter_definition.ValueString(),
+		Description:            plan.Description.ValueString(),
 	}
 
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Updating pesto project of (plan.)ID : %v \n", plan.ID.ValueString()))
-	// tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Updating pesto project of (state.)ID : %v \n", state.ID.ValueString()))
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Updating pesto project of (plan.)name : %v \n", plan.Name))
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Updating pesto project of (apiRequestBody.)ID : %v \n", apiRequestBody.ID))
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Updating pesto project of (apiRequestBody.)Name : %v \n", apiRequestBody.Name))
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Updating pesto project of (apiRequestBody.)Git_ssh_uri : %v \n", apiRequestBody.Git_ssh_uri))
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Updating pesto project of (apiRequestBody.)Description : %v \n", apiRequestBody.Description))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type of (plan.)ID : %v \n", plan.ID.ValueString()))
+	// tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type of (state.)ID : %v \n", state.ID.ValueString()))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type of (plan.)name : %v \n", plan.Name))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type of (apiRequestBody.)ID : %v \n", apiRequestBody.ID))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type of (apiRequestBody.)Name : %v \n", apiRequestBody.Name))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type of (apiRequestBody.)Project_id : %v \n", apiRequestBody.Project_id))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type of (apiRequestBody.)Frontmatter_definition : %v \n", apiRequestBody.Frontmatter_definition))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type of (apiRequestBody.)Description : %v \n", apiRequestBody.Description))
 
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Updating pesto project with payload : %v \n", apiRequestBody))
-	// Update existing Pesto Project
-	project, err := r.client.UpdatePestoProject(ctx, apiRequestBody, nil)
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Updating pesto content type with payload : %v \n", apiRequestBody))
+	// Update existing Pesto Content Type
+	contentType, err := r.client.UpdatePestoContentType(ctx, apiRequestBody, nil)
 
-	tflog.Debug(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - here is the tfsdk response object: %v", resp))
-	tflog.Debug(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - here is the project returned from Pesto API: %v", project))
+	tflog.Debug(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - here is the tfsdk response object: %v", resp))
+	tflog.Debug(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - here is the content type returned from Pesto API: %v", contentType))
 
-	var isUpdatedProjectNil string
+	var isUpdatedContentTypeNil string
 
-	if project != nil {
-		isUpdatedProjectNil = "NO updated pesto project object is not NIL"
+	if contentType != nil {
+		isUpdatedContentTypeNil = "NO updated pesto content type object is not NIL"
 	} else {
-		isUpdatedProjectNil = "YES updated pesto project object is NIL!"
+		isUpdatedContentTypeNil = "YES updated pesto content type object is NIL!"
 	}
-	tflog.Debug(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Is the updated project returned from Pesto API NIL ?: %v", isUpdatedProjectNil))
+	tflog.Debug(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Is the updated content type returned from Pesto API NIL ?: %v", isUpdatedContentTypeNil))
 
-	// _, err := r.client.UpdatePestoProject(plan.ID.ValueString(), hashicupsItems)
+	// _, err := r.client.UpdatePestoContentType(plan.ID.ValueString(), hashicupsItems)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Updating Pesto Project",
+			"Error Updating Pesto Content Type",
 			"Could not update order, unexpected error: "+err.Error(),
 		)
 		return
 	}
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - UPDATE - Successfully updated pesto project of name : %v \n", project.Name))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - UPDATE - Successfully updated pesto content type of name : %v \n", contentType.Name))
 
-	// Update resource state with the Pesto Project returned by the API (mybe that one is not necessary ? I'm not sure, yet)
+	// Update resource state with the Pesto Content Type returned by the API (mybe that one is not necessary ? I'm not sure, yet)
 	plan.ID = types.StringValue(plan.ID.ValueString())
 	plan = contentTypeResourceModel{
-		ID:                   types.StringValue(project.ID),
-		Name:                 types.StringValue(project.Name),
-		Description:          types.StringValue(project.Description),
-		Git_ssh_uri:          types.StringValue(project.Git_ssh_uri),
-		Git_service_provider: types.StringValue(project.Git_service_provider),
+		ID:                     types.StringValue(contentType.ID),
+		Project_id:             types.StringValue(contentType.Project_id),
+		Name:                   types.StringValue(contentType.Name),
+		Frontmatter_definition: types.StringValue(contentType.Frontmatter_definition),
+		Description:            types.StringValue(contentType.Description),
 	}
 	// Update resource state with updated sub-object if
 	// there are some, because sub-objects are not populated.
@@ -325,12 +326,12 @@ func (r *contentTypeResource) Update(ctx context.Context, req resource.UpdateReq
 	// PROJECT ID  (a foreign key in the database of the Pesto API)
 	// -----------------------
 	// - this would also mean that we expect
-	//   that a pesto project has a [content_types] List property,
+	//   that a pesto content type has a [content_types] List property,
 	//   that allow creating and updating the content types of a given Pesto Project
 	// >> I have reason to dislike that design
 	// >> Why ?
 	// >> Because I want that a single content-type entity can be reused in several pesto project,
-	// >> so I would have to modify the Pesto API so that a the Content Type Entity has a [project_ids] property, that is an array (or a set) of project IDs.
+	// >> so I would have to modify the Pesto API so that a the Content Type Entity has a [project_ids] property, that is an array (or a set) of content type IDs.
 	// >> that would mean having an (N <-> N) relation between Pesto Projects and Pesto Content Types.
 	// >> ---
 	// >> Yet, having an (N <-> N) relation between
@@ -415,16 +416,16 @@ func (r *contentTypeResource) Delete(ctx context.Context, req resource.DeleteReq
 		return
 	}
 
-	// Delete existing order
-	project, err := r.client.DeletePestoProject(ctx, state.ID.ValueString(), nil)
+	// Delete existing Content Type
+	contentType, err := r.client.DeletePestoContentType(ctx, state.ID.ValueString(), nil)
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Error Deleting Pesto Project",
-			fmt.Sprintf("Could not delete Pesto Project of ID=[%v], name=[%v] unexpected error: %v", state.ID, state.Name, err.Error()),
+			"Error Deleting Pesto Content Type",
+			fmt.Sprintf("Could not delete Pesto Content Type of ID=[%v], name=[%v] unexpected error: %v", state.ID, state.Name, err.Error()),
 		)
 		return
 	}
-	tflog.Info(ctx, fmt.Sprintf("PROJECT RESOURCE - DELETE - Successfully deleted pesto project of name : %v \n", project.Name))
+	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - DELETE - Successfully deleted pesto content type of name : %v \n", contentType.Name))
 
 }
 

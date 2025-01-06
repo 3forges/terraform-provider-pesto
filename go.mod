@@ -3,7 +3,7 @@ module terraform-provider-pesto
 go 1.21
 
 require (
-	github.com/3forges/pesto-api-client-go v0.0.11
+	github.com/3forges/pesto-api-client-go v0.0.12
 	github.com/hashicorp/terraform-plugin-docs v0.19.4
 	github.com/hashicorp/terraform-plugin-framework v1.10.0
 	github.com/hashicorp/terraform-plugin-go v0.23.0

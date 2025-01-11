@@ -55,9 +55,16 @@ func (r *contentTypeResource) Schema(_ context.Context, _ resource.SchemaRequest
 				Required: true,
 				Computed: false,
 			},
-			"frontmatter_definition": schema.StringAttribute{
-				Required: true,
-				Computed: false,
+			/*
+				"frontmatter_definition": schema.StringAttribute{
+					Required: true,
+					Computed: false,
+				},
+			*/
+			"frontmatter_definition": schema.MapAttribute{
+				ElementType: types.StringType,
+				Required:    true,
+				// ... potentially other fields ...
 			},
 			"description": schema.StringAttribute{
 				Required: true,
@@ -111,11 +118,12 @@ func (r *contentTypeResource) Schema(_ context.Context, _ resource.SchemaRequest
 
 // contentTypeResourceModel maps the resource schema data.
 type contentTypeResourceModel struct {
-	ID                     types.String `tfsdk:"id"`
-	Project_id             types.String `tfsdk:"project_id"`
-	Name                   types.String `tfsdk:"name"`
-	Frontmatter_definition types.String `tfsdk:"frontmatter_definition"`
-	Description            types.String `tfsdk:"description"`
+	ID         types.String `tfsdk:"id"`
+	Project_id types.String `tfsdk:"project_id"`
+	Name       types.String `tfsdk:"name"`
+	// Frontmatter_definition types.String `tfsdk:"frontmatter_definition"`
+	Frontmatter_definition types.MapType `tfsdk:"frontmatter_definition"`
+	Description            types.String  `tfsdk:"description"`
 	// PestoContentTypes []pestoContentTypeModel `tfsdk:"pesto_content_types"`
 	LastUpdated types.String `tfsdk:"last_updated"`
 }

@@ -36,6 +36,13 @@ go: upgraded github.com/3forges/pesto-api-client-go v0.0.11 => v0.0.12
 
 ```
 
+
+```bash
+export GOPRIVATE=github.com
+go get github.com/hashicorp/terraform-plugin-framework-validators@v0.16.0
+go mod tidy
+```
+
 ## Using the provider
 
 Fill this in for each provider

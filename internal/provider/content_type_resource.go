@@ -3,15 +3,20 @@ package provider
 import (
 	"context"
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 
 	// "strconv".
 
 	"github.com/3forges/pesto-api-client-go"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -54,6 +59,14 @@ func (r *contentTypeResource) Schema(_ context.Context, _ resource.SchemaRequest
 			"name": schema.StringAttribute{
 				Required: true,
 				Computed: false,
+				Validators: []validator.String{
+					// mapvalidator.SizeAtLeast(1),
+					stringvalidator.LengthAtLeast(1),
+					stringvalidator.RegexMatches(
+						regexp.MustCompile(`^[a-zA-Z]([a-zA-Z0-9\-\_]*)?[a-zA-Z0-9]$`),
+						"Must be a valid Typescript interface name: must start with a letter, must not start with a number or a dash, or an underscore, must not contain any special character, must not end with a dash, or an underscore.",
+					),
+				},
 			},
 			/*
 				"frontmatter_definition": schema.StringAttribute{
@@ -62,10 +75,50 @@ func (r *contentTypeResource) Schema(_ context.Context, _ resource.SchemaRequest
 				},
 			*/
 			"frontmatter_definition": schema.MapAttribute{
-				ElementType: types.StringType,
+				Description: "The properties of the definied frontmatter, for this content type. They are provided as a map, where the keys are the properties " +
+					"names and the values represent their TypeScript type, which can only be either of: `string`, `integer`, `boolean` " +
+					"(`date` is not supported yet, but will soon).",
 				Required:    true,
+				ElementType: types.StringType,
+				Validators: []validator.Map{
+					// mapvalidator.SizeAtLeast(1),
+					mapvalidator.SizeAtLeast(0),
+					mapvalidator.KeysAre(
+						stringvalidator.LengthAtLeast(1),
+						stringvalidator.RegexMatches(
+							regexp.MustCompile(`^[a-zA-Z]([a-zA-Z0-9\-\_]*)?[a-zA-Z0-9]$`),
+							"Must be a vlaid Typescript interface field name: must start with a letter, must not start with a number or a dash, or an underscore, must not contain any special character, must not end with a dash, or an underscore.",
+						),
+					),
+					mapvalidator.ValueStringsAre(
+						stringvalidator.RegexMatches(
+							// regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?$`),
+							regexp.MustCompile(`^(string|number|boolean)$`),
+							"must be either string, number, or boolean",
+						),
+					),
+				},
 				// ... potentially other fields ...
 			},
+			/* Below, an example  of a map attribute, with validators, from the proxmox terraform provider:
+			"nodes": schema.MapAttribute{
+				Description: "The member nodes for this group. They are provided as a map, where the keys are the node " +
+					"names and the values represent their priority: integers for known priorities or `null` for unset " +
+					"priorities.",
+				Required:    true,
+				ElementType: types.Int64Type,
+				Validators: []validator.Map{
+					mapvalidator.SizeAtLeast(1),
+					mapvalidator.KeysAre(
+						stringvalidator.RegexMatches(
+							regexp.MustCompile(`^[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?$`),
+							"must be a valid Proxmox node name",
+						),
+					),
+					mapvalidator.ValueInt64sAre(int64validator.Between(0, 1000)),
+				},
+			},
+			*/
 			"description": schema.StringAttribute{
 				Required: true,
 				Computed: false,
@@ -122,8 +175,9 @@ type contentTypeResourceModel struct {
 	Project_id types.String `tfsdk:"project_id"`
 	Name       types.String `tfsdk:"name"`
 	// Frontmatter_definition types.String `tfsdk:"frontmatter_definition"`
-	Frontmatter_definition types.MapType `tfsdk:"frontmatter_definition"`
-	Description            types.String  `tfsdk:"description"`
+	// Frontmatter_definition types.MapType `tfsdk:"frontmatter_definition"`
+	Frontmatter_definition types.Map    `tfsdk:"frontmatter_definition"`
+	Description            types.String `tfsdk:"description"`
 	// PestoContentTypes []pestoContentTypeModel `tfsdk:"pesto_content_types"`
 	LastUpdated types.String `tfsdk:"last_updated"`
 }
@@ -461,4 +515,36 @@ func (r *contentTypeResource) Configure(_ context.Context, req resource.Configur
 	}
 
 	r.client = client
+}
+
+/////////////////////////////////////////////////////
+/// UTILITY METHODS (not implemnting any framework component)
+/////////////////////////////////////////////////////
+
+// ////////
+// / inspired by:
+// /  > MapAttribute: https://github.com/bpg/terraform-provider-proxmox/blob/6f657892c0a29d6677ef6d72690dbfb991a67ad1/fwprovider/ha/resource_hagroup.go#L88
+// /  > utility function: https://github.com/bpg/terraform-provider-proxmox/blob/6f657892c0a29d6677ef6d72690dbfb991a67ad1/fwprovider/ha/resource_hagroup.go#L325
+// /  > Create method: https://github.com/bpg/terraform-provider-proxmox/blob/6f657892c0a29d6677ef6d72690dbfb991a67ad1/fwprovider/ha/resource_hagroup.go#L160
+// bakeFrontmatterDefFieldsToStrTsInterface converts the map of frontmatter_definition fields into a string, which is a TypeScript Interface.
+func (r *contentTypeResource) bakeFrontmatterDefFieldsToStrTsInterface(frontmatter_definition types.Map, contentTypeName string) string {
+	fmFields := frontmatter_definition.Elements()
+	fmFieldsArray := make([]string, len(fmFields))
+	i := 0
+
+	for name, value := range fmFields {
+		if value.IsNull() {
+			fmFieldsArray[i] = name
+		} else {
+			fmFieldsArray[i] = fmt.Sprintf("%s : %d \n", name, value.(types.Int64).ValueInt64())
+		}
+
+		i++
+	}
+
+	// return strings.Join(fmFieldsArray, ",")
+	tsInterfaceFields := strings.Join(fmFieldsArray, ",")
+	return fmt.Sprintf(`export interface `+contentTypeName+`_frontmatter_def { \n
+%d \n
+after line}`, tsInterfaceFields)
 }

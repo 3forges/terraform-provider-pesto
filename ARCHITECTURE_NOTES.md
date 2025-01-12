@@ -88,7 +88,14 @@ export interface car_contenttype_with_tofu_Frontmatter {
 * https://developer.hashicorp.com/terraform/plugin/framework/handling-data/attributes/map
 * https://developer.hashicorp.com/terraform/plugin/framework/handling-data/types/map#accessing-values
 * https://developer.hashicorp.com/terraform/plugin/framework/handling-data/types/custom
-* Examples of using a Map Attribute inside a terraform provider implementation: https://github.com/jianyuan/terraform-provider-sentry/blob/23fe95b74864d619108b48365451902d539f17d3/internal/provider/resource_issue_alert.go#L1006
+* Examples of using a Map Attribute inside a terraform provider implementation: 
+  * https://github.com/jianyuan/terraform-provider-sentry/blob/23fe95b74864d619108b48365451902d539f17d3/internal/provider/resource_issue_alert.go#L380C10-L380C18
+  * this one too, but its got a ListAttribute type: https://github.com/jianyuan/terraform-provider-sentry/blob/23fe95b74864d619108b48365451902d539f17d3/internal/provider/resource_issue_alert.go#L1006
+  * Oh I have a better example in the code of the proxmox provider: 
+    * so the `nodes` attribute is a `schema.MapAtttribute` 
+    * and when its value is read, from the  plan, of the state, the MAp is converted into a string, by a function iimplemented in the same source file here : https://github.com/bpg/terraform-provider-proxmox/blob/6f657892c0a29d6677ef6d72690dbfb991a67ad1/fwprovider/ha/resource_hagroup.go#L325
+
+
 
 <!--
 

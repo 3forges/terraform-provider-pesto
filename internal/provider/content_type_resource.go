@@ -175,7 +175,7 @@ type contentTypeResourceModel struct {
 	Project_id types.String `tfsdk:"project_id"`
 	Name       types.String `tfsdk:"name"`
 	// Frontmatter_definition types.String `tfsdk:"frontmatter_definition"`
-	// Frontmatter_definition types.MapType `tfsdk:"frontmatter_definition"`
+	//Frontmatter_definition types.MapType `tfsdk:"frontmatter_definition"`
 	Frontmatter_definition types.Map    `tfsdk:"frontmatter_definition"`
 	Description            types.String `tfsdk:"description"`
 	// PestoContentTypes []pestoContentTypeModel `tfsdk:"pesto_content_types"`
@@ -208,9 +208,10 @@ func (r *contentTypeResource) Create(ctx context.Context, req resource.CreateReq
 		// ID:                   plan.ID.ValueString(),
 		Project_id:             plan.Project_id.ValueString(),
 		Name:                   plan.Name.ValueString(),
-		Frontmatter_definition: bakeFrontmatterDefFieldsToStrTsInterface(plan.Frontmatter_definition, plan.Name.ValueString())// plan.Frontmatter_definition.ValueString(),
+		Frontmatter_definition: r.bakeFrontmatterDefFieldsToStrTsInterface(plan.Frontmatter_definition, plan.Name.ValueString()), // plan.Frontmatter_definition.ValueString(),
 		Description:            plan.Description.ValueString(),
 	}
+
 	// var projectsToCreate []pesto.PestoContentType
 	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - Creating pesto content type of name : %v \n", plan.Name))
 	//.Printf("CReating pesto content type of name : %v \n",projectsToCreate[i].Name)
@@ -236,14 +237,26 @@ func (r *contentTypeResource) Create(ctx context.Context, req resource.CreateReq
 		return
 	}
 	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - Successfully created pesto content type of name : %v \n", contentType.Name))
-	plan.ID = types.StringValue(plan.ID.ValueString())
-	plan = contentTypeResourceModel{
-		ID:                     types.StringValue(contentType.ID),
-		Project_id:             types.StringValue(contentType.Project_id),
-		Name:                   types.StringValue(contentType.Name),
-		Frontmatter_definition: types.StringValue(contentType.Frontmatter_definition),
-		Description:            types.StringValue(contentType.Description),
-	}
+	// plan.ID = types.StringValue(plan.ID.ValueString())
+	plan.ID = types.StringValue(contentType.ID)
+
+	/*
+		// We don't need to update the
+		// plan after the resource has been created
+		// we only need to update :
+		// -> the plan.ID for the Resource ID
+		// -> the plan.LAstUpdated for the Resource LastUpdated filed
+		// and that becasue we are going to
+		// update the Terraform State with the plan values, after successfully creating the resource
+
+			plan = contentTypeResourceModel{
+				ID:                     types.StringValue(contentType.ID),
+				Project_id:             types.StringValue(contentType.Project_id),
+				Name:                   types.StringValue(contentType.Name),
+				Frontmatter_definition: plan.Frontmatter_definition, // r.bakeFrontmatterDefFieldsToStrTsInterface(, plan.Name.ValueString()), //types.StringValue(contentType.Frontmatter_definition),
+				Description:            types.StringValue(contentType.Description),
+			}
+	*/
 	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
 
 	// Set state to fully populated data
@@ -280,12 +293,14 @@ func (r *contentTypeResource) Read(ctx context.Context, req resource.ReadRequest
 	}
 
 	// Overwrite items with refreshed state
+	// fronmatter_def_tsInterfaceStr := r.bakeFrontmatterDefFieldsToStrTsInterface(contentType.Frontmatter_definition, contentType.Name)
 
 	state = contentTypeResourceModel{
-		ID:                     types.StringValue(contentType.ID),
-		Project_id:             types.StringValue(contentType.Project_id),
-		Name:                   types.StringValue(contentType.Name),
-		Frontmatter_definition: types.StringValue(bakeFrontmatterDefFieldsToStrTsInterface(contentType.Frontmatter_definition, contentType.Name))// plan.Frontmatter_definition.ValueString(), types.StringValue(contentType.Frontmatter_definition),
+		ID:         types.StringValue(contentType.ID),
+		Project_id: types.StringValue(contentType.Project_id),
+		Name:       types.StringValue(contentType.Name),
+		// That's my next TODO: I need to turn the string frontmatter into a Map
+		Frontmatter_definition: r.convertStrToTsInterface(contentType.Frontmatter_definition), // types.StringValue(fronmatter_def_tsInterfaceStr), // plan.Frontmatter_definition.ValueString(), types.StringValue(contentType.Frontmatter_definition),
 		Description:            types.StringValue(contentType.Description),
 	}
 	// - A read operation does not modify the state, so i don't set [state.LastUpdated]

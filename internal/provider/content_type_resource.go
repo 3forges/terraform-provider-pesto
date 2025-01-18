@@ -346,7 +346,7 @@ func (r *contentTypeResource) Update(ctx context.Context, req resource.UpdateReq
 		// ID:                   state.ID.ValueString(),
 		Project_id:             plan.Project_id.ValueString(),
 		Name:                   plan.Name.ValueString(),
-		Frontmatter_definition: plan.Frontmatter_definition.ValueString(),
+		Frontmatter_definition: r.bakeFrontmatterDefFieldsToStrTsInterface(plan.Frontmatter_definition, plan.Name.ValueString()), // plan.Frontmatter_definition.ValueString(),
 		Description:            plan.Description.ValueString(),
 	}
 
@@ -387,13 +387,28 @@ func (r *contentTypeResource) Update(ctx context.Context, req resource.UpdateReq
 
 	// Update resource state with the Pesto Content Type returned by the API (mybe that one is not necessary ? I'm not sure, yet)
 	plan.ID = types.StringValue(plan.ID.ValueString())
-	plan = contentTypeResourceModel{
-		ID:                     types.StringValue(contentType.ID),
-		Project_id:             types.StringValue(contentType.Project_id),
-		Name:                   types.StringValue(contentType.Name),
-		Frontmatter_definition: types.StringValue(contentType.Frontmatter_definition),
-		Description:            types.StringValue(contentType.Description),
-	}
+	// plan.ID = types.StringValue(plan.ID.ValueString())
+	plan.ID = types.StringValue(contentType.ID)
+
+	/*
+		// We don't need to update the
+		// plan after the resource has been created
+		// we only need to update :
+		// -> the plan.ID for the Resource ID
+		// -> the plan.LAstUpdated for the Resource LastUpdated filed
+		// and that becasue we are going to
+		// update the Terraform State with the plan values, after successfully creating the resource
+
+			plan = contentTypeResourceModel{
+				ID:                     types.StringValue(contentType.ID),
+				Project_id:             types.StringValue(contentType.Project_id),
+				Name:                   types.StringValue(contentType.Name),
+				Frontmatter_definition: plan.Frontmatter_definition, // r.bakeFrontmatterDefFieldsToStrTsInterface(, plan.Name.ValueString()), //types.StringValue(contentType.Frontmatter_definition),
+				Description:            types.StringValue(contentType.Description),
+			}
+	*/
+	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
+
 	// Update resource state with updated sub-object if
 	// there are some, because sub-objects are not populated.
 	// -----------------------

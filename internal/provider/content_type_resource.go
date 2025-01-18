@@ -208,7 +208,7 @@ func (r *contentTypeResource) Create(ctx context.Context, req resource.CreateReq
 		// ID:                   plan.ID.ValueString(),
 		Project_id:             plan.Project_id.ValueString(),
 		Name:                   plan.Name.ValueString(),
-		Frontmatter_definition: plan.Frontmatter_definition.ValueString(),
+		Frontmatter_definition: bakeFrontmatterDefFieldsToStrTsInterface(plan.Frontmatter_definition, plan.Name.ValueString())// plan.Frontmatter_definition.ValueString(),
 		Description:            plan.Description.ValueString(),
 	}
 	// var projectsToCreate []pesto.PestoContentType
@@ -285,7 +285,7 @@ func (r *contentTypeResource) Read(ctx context.Context, req resource.ReadRequest
 		ID:                     types.StringValue(contentType.ID),
 		Project_id:             types.StringValue(contentType.Project_id),
 		Name:                   types.StringValue(contentType.Name),
-		Frontmatter_definition: types.StringValue(contentType.Frontmatter_definition),
+		Frontmatter_definition: types.StringValue(bakeFrontmatterDefFieldsToStrTsInterface(contentType.Frontmatter_definition, contentType.Name))// plan.Frontmatter_definition.ValueString(), types.StringValue(contentType.Frontmatter_definition),
 		Description:            types.StringValue(contentType.Description),
 	}
 	// - A read operation does not modify the state, so i don't set [state.LastUpdated]
@@ -536,7 +536,7 @@ func (r *contentTypeResource) bakeFrontmatterDefFieldsToStrTsInterface(frontmatt
 		if value.IsNull() {
 			fmFieldsArray[i] = name
 		} else {
-			fmFieldsArray[i] = fmt.Sprintf("%s : %d \n", name, value.(types.Int64).ValueInt64())
+			fmFieldsArray[i] = fmt.Sprintf("\n %s : %s ", name, value.(types.String).ValueString())
 		}
 
 		i++
@@ -544,7 +544,6 @@ func (r *contentTypeResource) bakeFrontmatterDefFieldsToStrTsInterface(frontmatt
 
 	// return strings.Join(fmFieldsArray, ",")
 	tsInterfaceFields := strings.Join(fmFieldsArray, ",")
-	return fmt.Sprintf(`export interface `+contentTypeName+`_frontmatter_def { \n
-%d \n
-after line}`, tsInterfaceFields)
+	return fmt.Sprintf(`export interface `+contentTypeName+`_frontmatter_def { 
+%s }`, tsInterfaceFields)
 }

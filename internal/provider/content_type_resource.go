@@ -300,7 +300,7 @@ func (r *contentTypeResource) Read(ctx context.Context, req resource.ReadRequest
 		Project_id: types.StringValue(contentType.Project_id),
 		Name:       types.StringValue(contentType.Name),
 		// That's my next TODO: I need to turn the string frontmatter into a Map
-		Frontmatter_definition: r.convertStrToTsInterface(contentType.Frontmatter_definition), // types.StringValue(fronmatter_def_tsInterfaceStr), // plan.Frontmatter_definition.ValueString(), types.StringValue(contentType.Frontmatter_definition),
+		Frontmatter_definition: r.convertFrontmatterDefStrToMap(contentType.Frontmatter_definition), // types.StringValue(fronmatter_def_tsInterfaceStr), // plan.Frontmatter_definition.ValueString(), types.StringValue(contentType.Frontmatter_definition),
 		Description:            types.StringValue(contentType.Description),
 	}
 	// - A read operation does not modify the state, so i don't set [state.LastUpdated]
@@ -543,6 +543,33 @@ func (r *contentTypeResource) Configure(_ context.Context, req resource.Configur
 // /  > Create method: https://github.com/bpg/terraform-provider-proxmox/blob/6f657892c0a29d6677ef6d72690dbfb991a67ad1/fwprovider/ha/resource_hagroup.go#L160
 // bakeFrontmatterDefFieldsToStrTsInterface converts the map of frontmatter_definition fields into a string, which is a TypeScript Interface.
 func (r *contentTypeResource) bakeFrontmatterDefFieldsToStrTsInterface(frontmatter_definition types.Map, contentTypeName string) string {
+	fmFields := frontmatter_definition.Elements()
+	fmFieldsArray := make([]string, len(fmFields))
+	i := 0
+
+	for name, value := range fmFields {
+		if value.IsNull() {
+			fmFieldsArray[i] = name
+		} else {
+			fmFieldsArray[i] = fmt.Sprintf("\n %s : %s ", name, value.(types.String).ValueString())
+		}
+
+		i++
+	}
+
+	// return strings.Join(fmFieldsArray, ",")
+	tsInterfaceFields := strings.Join(fmFieldsArray, ",")
+	return fmt.Sprintf(`export interface `+contentTypeName+`_frontmatter_def { 
+%s }`, tsInterfaceFields)
+}
+
+// ///////////////////////////
+// To implement: its the reverse of bakeFrontmatterDefFieldsToStrTsInterface
+func (r *contentTypeResource) convertFrontmatterDefStrToMap(frontmatter_definition string) types.Map {
+	/**
+	 * TODO: TO IMPLEMENT
+	 **/
+
 	fmFields := frontmatter_definition.Elements()
 	fmFieldsArray := make([]string, len(fmFields))
 	i := 0

@@ -26,7 +26,16 @@ resource "pesto_content_type" "contenttype1_with_tofu" {
   // frontmatter_definition = "rubbish_Frontmatter_Def"
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter;"
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter {}"
-  frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter { \n  addedByTerraformationByUpdatingFMdef: boolean \n  includeInJumbo: boolean \n  size: number \n  price: number \n  color: string \n  trademark: string \n  isFromNewClothesCollection: boolean \n}"
-  description            = "A pesto content type create by terraformation"
-  depends_on             = [pesto_project.gidhora_project]
+  // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter { \n  addedByTerraformationByUpdatingFMdef: boolean \n  includeInJumbo: boolean \n  size: number \n  price: number \n  color: string \n  trademark: string \n  isFromNewClothesCollection: boolean \n}"
+  frontmatter_definition = {
+    "addedByTerraformationByUpdatingFMdef" : "boolean",
+    "includeInJumbo" : "boolean",
+    "size" : "number",
+    "price" : "number",
+    "color" : "string",
+    "trademark" : "string",
+    "isFromNewClothesCollection" : "boolean"
+  }
+  description = "A pesto content type create by terraformation"
+  depends_on  = [pesto_project.gidhora_project]
 }

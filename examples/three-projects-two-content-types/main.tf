@@ -27,18 +27,17 @@ resource "pesto_content_type" "contenttype1_with_tofu" {
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter;"
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter {}"
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter { \n  addedByTerraformationByUpdatingFMdef: boolean \n  includeInJumbo: boolean \n  size: number \n  price: number \n  color: string \n  trademark: string \n  isFromNewClothesCollection: boolean \n}"
-  frontmatter_definition = <<EOF
-export interface nameOftestCtxt1_Frontmatter { 
-  available_in_stock: boolean
-  european_size: number
-  american_size: number
-  price: number
-  color: string
-  trademark: string
-  isInLatestClothesCollection: boolean
-}
-EOF
-  description            = "A pesto content type representing a pair of socks for sale, created by terraformation"
+  frontmatter_definition = {
+    "available_in_stock" : "boolean",
+    "european_size" : "number",
+    "american_size" : "number",
+    "price" : "number",
+    "color" : "string",
+    "trademark" : "string",
+    "isInLatestClothesCollection" : "boolean",
+    "addedToTestUpdatingWithTerraformProvider" : "boolean"
+  }
+  description = "A pesto content type representing a pair of socks for sale, created by terraformation"
 
 }
 
@@ -49,20 +48,18 @@ resource "pesto_content_type" "car_contenttype_with_tofu" {
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter;"
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter {}"
   // frontmatter_definition = "export interface nameOftestCtxt1_Frontmatter { \n  addedByTerraformationByUpdatingFMdef: boolean \n  includeInJumbo: boolean \n  size: number \n  price: number \n  color: string \n  trademark: string \n  isFromNewClothesCollection: boolean \n}"
-  frontmatter_definition = <<EOF
-export interface nameOftestCtxt1_Frontmatter {
-  number_of_doors: number
-  weight_in_kilograms: number
-  horsepower: number
-  max_speed: number
-  zero_sixty_time: number
-  color: string
-  trademark: string
-  second_hand: boolean
-  year: string
-}
-EOF
-  description            = "A pesto content type representing a car for sale, created by terraformation"
+  frontmatter_definition = {
+    "number_of_doors" : "number"
+    "weight_in_kilograms" : "number"
+    "horsepower" : "number"
+    "max_speed" : "number"
+    "zero_sixty_time" : "number"
+    "color" : "string"
+    "trademark" : "string"
+    "second_hand" : "boolean"
+    "year" : "string"
+  }
+  description = "A pesto content type representing a car for sale, created by terraformation"
 
 }
 

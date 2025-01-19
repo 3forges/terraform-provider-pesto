@@ -49,7 +49,7 @@ Now all creation, update, and delete work.
 
 ```Powershell
 $env:TF_LOG = "debug"
-
+# export TF_LOG="debug"
 tofu init
 
 tofu validate
@@ -58,6 +58,12 @@ tofu fmt
 tofu plan
 tofu apply -auto-approve
 
+# ---
+# To test tht when I run 
+# tofu refresh, the READ method is
+# called, I ran:
+# rm tflogs.tosee.logs
+# tofu refresh >> tflogs.tosee.logs 2>&1
 ```
 
 * Delete all by running:

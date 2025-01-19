@@ -12,6 +12,7 @@ import (
 	"github.com/3forges/pesto-api-client-go"
 	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -267,6 +268,26 @@ func (r *contentTypeResource) Create(ctx context.Context, req resource.CreateReq
 	}
 }
 
+// /////////////////
+// Read (refresh) is part of the
+// basic Terraform lifecycle for managing resources.
+// During the terraform apply, terraform plan, and terraform refresh commands,
+// Terraform calls the provider ReadResource RPC, in
+// which the framework calls the resource.Resource interface
+// Read method.
+// The Read method is also executed after resource import.
+// The request contains Terraform prior state data.
+// The response contains the refreshed state data. The data is defined by the schema of the resource.
+// -
+// Ref. : https://developer.hashicorp.com/terraform/plugin/framework/resources/read
+// /////////
+//
+// To test that when I run
+// tofu refresh, the READ method is
+// called, I ran:
+// rm tflogs.tosee.logs
+// tofu refresh >> tflogs.tosee.logs 2>&1
+// /////////
 // Read refreshes the Terraform state with the latest data.
 func (r *contentTypeResource) Read(ctx context.Context, req resource.ReadRequest, resp *resource.ReadResponse) {
 	// Read resource information.
@@ -300,7 +321,7 @@ func (r *contentTypeResource) Read(ctx context.Context, req resource.ReadRequest
 		Project_id: types.StringValue(contentType.Project_id),
 		Name:       types.StringValue(contentType.Name),
 		// That's my next TODO: I need to turn the string frontmatter into a Map
-		Frontmatter_definition: r.convertFrontmatterDefStrToMap(contentType.Frontmatter_definition), // types.StringValue(fronmatter_def_tsInterfaceStr), // plan.Frontmatter_definition.ValueString(), types.StringValue(contentType.Frontmatter_definition),
+		Frontmatter_definition: r.convertFrontmatterDefStrToMap(ctx, contentType.Frontmatter_definition), // types.StringValue(fronmatter_def_tsInterfaceStr), // plan.Frontmatter_definition.ValueString(), types.StringValue(contentType.Frontmatter_definition),
 		Description:            types.StringValue(contentType.Description),
 	}
 	// - A read operation does not modify the state, so i don't set [state.LastUpdated]
@@ -488,8 +509,6 @@ func (r *contentTypeResource) Update(ctx context.Context, req resource.UpdateReq
 	*/
 	// And finally update last updated timestamp
 	plan.LastUpdated = types.StringValue(time.Now().Format(time.RFC850))
-
-	// -
 	diags = resp.State.Set(ctx, plan)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -580,27 +599,83 @@ func (r *contentTypeResource) bakeFrontmatterDefFieldsToStrTsInterface(frontmatt
 
 // ///////////////////////////
 // To implement: its the reverse of bakeFrontmatterDefFieldsToStrTsInterface
-func (r *contentTypeResource) convertFrontmatterDefStrToMap(frontmatter_definition string) types.Map {
+func (r *contentTypeResource) convertFrontmatterDefStrToMap(ctx context.Context, frontmatter_definition_AsTsInterfaceStr string) types.Map {
 	/**
 	 * TODO: TO IMPLEMENT
 	 **/
+	logsPrefix := `TERRAFORM PESTO PROVIDER - [convertFrontmatterDefStrToMap] method - `
+	/*
+		 frontmatter_definitionAsTsInterfaceStr := `export interface sayMyName_frontmatter_def {
+			max_speed : number ,
+			trademark : string ,
+			second_hand : boolean ,
+			number_of_doors : number ,
+			weight_in_kilograms : number ,
+			zero_sixty_time : number ,
+			year : string ,
+			horsepower : number ,
+			color : string  }`
+	*/
+	frontmatter_definitionAsTsInterfaceStrWithoutCommas := strings.Replace(frontmatter_definition_AsTsInterfaceStr, ",", " ", -1)
+	frontmatter_definitionAsTsInterfaceStrWithoutCommasOrSemiColons := strings.Replace(frontmatter_definitionAsTsInterfaceStrWithoutCommas, ";", " ", -1)
+	splittedByOpeningCurlyBraces := strings.Split(frontmatter_definitionAsTsInterfaceStrWithoutCommasOrSemiColons, `{`)
+	splittedByClosingCurlyBraces := strings.Split(splittedByOpeningCurlyBraces[1], `}`)
 
-	fmFields := frontmatter_definition.Elements()
-	fmFieldsArray := make([]string, len(fmFields))
-	i := 0
+	splittedByNewlineOrSpace := strings.Fields(splittedByClosingCurlyBraces[0])
+	//splittedByComma := strings.Split(splittedByClosingCurlyBraces[0], `,`)
 
-	for name, value := range fmFields {
-		if value.IsNull() {
-			fmFieldsArray[i] = name
-		} else {
-			fmFieldsArray[i] = fmt.Sprintf("\n %s : %s ", name, value.(types.String).ValueString())
-		}
+	// fmt.Println(diags)
+	// fmt.Println(`splittedByOpeningCurlyBraces: `)
+	// fmt.Println(splittedByOpeningCurlyBraces)
+	tflog.Debug(ctx, fmt.Sprintf(logsPrefix+`splittedByOpeningCurlyBraces[1]: %s`, splittedByOpeningCurlyBraces[1]))
+	tflog.Debug(ctx, fmt.Sprintf(logsPrefix+`splittedByClosingCurlyBraces[0]: %s`, splittedByClosingCurlyBraces[0]))
 
-		i++
+	//fmt.Println(` --------------------------------- `)
+	//fmt.Println(splittedByComma)
+	//fmt.Println(` --------------------------------- `)
+	tflog.Debug(ctx, fmt.Sprintf(logsPrefix+`splittedByNewlineOrSpace: %s`, splittedByNewlineOrSpace))
+
+	///fmt.Println(` --------------------------------- `)
+	///fmt.Println(` --------------------------------- `)
+	///fmt.Println(` --------------------------------- `)
+
+	fields := map[string]attr.Value{}
+
+	// using for loop
+	for i := 0; i < len(splittedByNewlineOrSpace)-3; i = i + 3 {
+		msg := fmt.Sprintf("begin for loop iteration, [i] is [%d]", i)
+
+		tflog.Debug(ctx, logsPrefix+msg)
+
+		keyMsg := fmt.Sprintf(logsPrefix+`key is: %s`, splittedByNewlineOrSpace[i])
+
+		tflog.Debug(ctx, keyMsg)
+
+		valueMsg := fmt.Sprintf(logsPrefix+`value is: %s`, splittedByNewlineOrSpace[i+2])
+
+		tflog.Debug(ctx, valueMsg)
+
+		fields[splittedByNewlineOrSpace[i]] = types.StringValue(splittedByNewlineOrSpace[i+2])
+		/*
+			   if splittedByNewlineOrSpace[i] == `,` {
+				   fmt.Println("this is a comma so we do not increment i more than one")
+				   // i = i + 0
+			   } else {
+				   fmt.Println("this is not a comma, so we increment by 2")
+				   fmt.Println(`key is: `)
+				   fmt.Println(splittedByNewlineOrSpace[i])
+				   fmt.Println(`value is: `)
+				   fmt.Println(splittedByNewlineOrSpace[i+2])
+				   fields["key3"] = types.StringValue("value3")
+				   // i = i + 1
+			   }
+		*/
+
 	}
 
-	// return strings.Join(fmFieldsArray, ",")
-	tsInterfaceFields := strings.Join(fmFieldsArray, ",")
-	return fmt.Sprintf(`export interface `+contentTypeName+`_frontmatter_def { 
-%s }`, tsInterfaceFields)
+	toReturn, diags := types.MapValue(types.StringType, fields)
+	diagsMsg := fmt.Sprintf(logsPrefix+"diags of conversion of fields to terraform Map type: %s", diags)
+
+	tflog.Debug(ctx, diagsMsg)
+	return toReturn
 }

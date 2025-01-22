@@ -239,8 +239,14 @@ func (r *contentTypeResource) Create(ctx context.Context, req resource.CreateReq
 	}
 	tflog.Info(ctx, fmt.Sprintf("CONTENT TYPE RESOURCE - CREATE - Successfully created pesto content type of name : %v \n", contentType.Name))
 	// plan.ID = types.StringValue(plan.ID.ValueString())
-	plan.ID = types.StringValue(contentType.ID)
-
+	// plan.ID = types.StringValue(contentType.ID)
+	plan = contentTypeResourceModel{
+		ID:                     types.StringValue(contentType.ID),
+		Project_id:             types.StringValue(contentType.Project_id),
+		Name:                   types.StringValue(contentType.Name),
+		Frontmatter_definition: r.convertFrontmatterDefStrToMap(ctx, contentType.Frontmatter_definition), // plan.Frontmatter_definition, // r.bakeFrontmatterDefFieldsToStrTsInterface(, plan.Name.ValueString()), //types.StringValue(contentType.Frontmatter_definition),
+		Description:            types.StringValue(contentType.Description),
+	}
 	/*
 		// We don't need to update the
 		// plan after the resource has been created
@@ -367,7 +373,7 @@ func (r *contentTypeResource) Update(ctx context.Context, req resource.UpdateReq
 		// ID:                   state.ID.ValueString(),
 		Project_id:             plan.Project_id.ValueString(),
 		Name:                   plan.Name.ValueString(),
-		Frontmatter_definition: r.bakeFrontmatterDefFieldsToStrTsInterface(plan.Frontmatter_definition, plan.Name.ValueString()), // plan.Frontmatter_definition.ValueString(),
+		Frontmatter_definition: r.bakeFrontmatterDefFieldsToStrTsInterface(plan.Frontmatter_definition, plan.Name.ValueString()), //Frontmatter_definition: // r.convertFrontmatterDefStrToMap(ctx, plan.Frontmatter_definition.ValueString()), //bakeFrontmatterDefFieldsToStrTsInterface(plan.Frontmatter_definition, plan.Name.ValueString()), // plan.Frontmatter_definition.ValueString(),
 		Description:            plan.Description.ValueString(),
 	}
 
@@ -410,7 +416,13 @@ func (r *contentTypeResource) Update(ctx context.Context, req resource.UpdateReq
 	plan.ID = types.StringValue(plan.ID.ValueString())
 	// plan.ID = types.StringValue(plan.ID.ValueString())
 	plan.ID = types.StringValue(contentType.ID)
-
+	plan = contentTypeResourceModel{
+		ID:                     types.StringValue(contentType.ID),
+		Project_id:             types.StringValue(contentType.Project_id),
+		Name:                   types.StringValue(contentType.Name),
+		Frontmatter_definition: r.convertFrontmatterDefStrToMap(ctx, contentType.Frontmatter_definition), // plan.Frontmatter_definition, // r.bakeFrontmatterDefFieldsToStrTsInterface(, plan.Name.ValueString()), //types.StringValue(contentType.Frontmatter_definition),
+		Description:            types.StringValue(contentType.Description),
+	}
 	/*
 		// We don't need to update the
 		// plan after the resource has been created
@@ -677,5 +689,6 @@ func (r *contentTypeResource) convertFrontmatterDefStrToMap(ctx context.Context,
 	diagsMsg := fmt.Sprintf(logsPrefix+"diags of conversion of fields to terraform Map type: %s", diags)
 
 	tflog.Debug(ctx, diagsMsg)
+	tflog.Debug(ctx, fmt.Sprintf(logsPrefix+" THHEREEEE JBL toReturn is: %s", toReturn))
 	return toReturn
 }

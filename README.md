@@ -224,3 +224,21 @@ In order to run the full suite of Acceptance tests, run `make testacc`.
 ```shell
 make testacc
 ```
+
+
+
+## The last issue
+
+I have a little bug in my `convertFrontmatterDefStrToMap` method, which triggers this error:
+
+```bash
+
+```
+
+* And indeed in the returned map the `horsepower` attribute is myteriously missing:
+
+```bash
+2025-01-23T20:20:20.320+0100 [DEBUG] provider.terraform-provider-pesto.exe: TERRAFORM PESTO PROVIDER - [convertFrontmatterDefStrToMap] method -  THHEREEEE JBL toReturn is: {"color":"string","max_speed":"number","number_of_doors":"number","second_hand":"boolean","trademark":"string","weight_in_kilograms":"number","year":"string","zero_sixty_time":"number"}: tf_req_id=abff1b15-a7e9-6fdd-fcdd-02d13fde0b26 tf_resource_type=pesto_content_type tf_rpc=ApplyResourceChange @caller=C:/Users/Utilisateur/terraform-provider-pesto/internal/provider/content_type_resource.go:692 @module=pesto tf_provider_addr=pesto-io.io/terraform/pesto timestamp="2025-01-23T20:20:20.320+0100"
+```
+
+

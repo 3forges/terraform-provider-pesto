@@ -64,6 +64,13 @@ tofu apply -auto-approve
 # called, I ran:
 # rm tflogs.tosee.logs
 # tofu refresh >> tflogs.tosee.logs 2>&1
+
+rm tflogs.tosee.logs
+tofu validate
+tofu fmt
+
+tofu plan
+tofu apply -auto-approve >> tflogs.tosee.logs 2>&1
 ```
 
 * Delete all by running:

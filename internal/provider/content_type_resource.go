@@ -654,7 +654,7 @@ func (r *contentTypeResource) convertFrontmatterDefStrToMap(ctx context.Context,
 	fields := map[string]attr.Value{}
 
 	// using for loop
-	for i := 0; i < len(splittedByNewlineOrSpace)-3; i = i + 3 {
+	for i := 0; i < len(splittedByNewlineOrSpace)-2; i = i + 3 {
 		msg := fmt.Sprintf("begin for loop iteration, [i] is [%d]", i)
 
 		tflog.Debug(ctx, logsPrefix+msg)
@@ -689,6 +689,7 @@ func (r *contentTypeResource) convertFrontmatterDefStrToMap(ctx context.Context,
 	diagsMsg := fmt.Sprintf(logsPrefix+"diags of conversion of fields to terraform Map type: %s", diags)
 
 	tflog.Debug(ctx, diagsMsg)
+	tflog.Debug(ctx, fmt.Sprintf(logsPrefix+" THHEREEEE JBL received is: %s", frontmatter_definition_AsTsInterfaceStr))
 	tflog.Debug(ctx, fmt.Sprintf(logsPrefix+" THHEREEEE JBL toReturn is: %s", toReturn))
 	return toReturn
 }

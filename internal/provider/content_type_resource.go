@@ -609,6 +609,64 @@ func (r *contentTypeResource) bakeFrontmatterDefFieldsToStrTsInterface(frontmatt
 %s }`, tsInterfaceFields)
 }
 
+func (r *contentTypeResource) quickTest(ctx context.Context) string {
+	myFirstStrMap := map[string]string{
+		"first":  "firstValue",
+		"second": "secondValue",
+	}
+	myFirstMap := map[string]any{
+		"bacon":         "delicious",
+		"steak":         true,
+		"somethingMore": myFirstStrMap,
+	}
+	myFirstMapWithSubMap := map[string]any{
+		"bacon": "delicious",
+		"steak": true,
+		"somethingMore": map[string]string{
+			"first":  "firstValue",
+			"second": "secondValue",
+		},
+	}
+	mySecondMap := map[string]any{
+		"bacon": "delicious",
+		"steak": true,
+	}
+	foods := map[string]any{
+		"bacon": "delicious",
+		"eggs": struct {
+			source string
+			price  float64
+		}{"chicken", 1.75},
+		"steak": true,
+	}
+	tflog.Debug(ctx, fmt.Sprintf(`quickTest: %s`, myFirstMap))
+	tflog.Debug(ctx, fmt.Sprintf(`quickTest: %s`, mySecondMap))
+	tflog.Debug(ctx, fmt.Sprintf(`quickTest: %s`, foods))
+	tflog.Debug(ctx, fmt.Sprintf(`quickTest: %s`, myFirstStrMap))
+	tflog.Debug(ctx, fmt.Sprintf(`quickTest: %s`, myFirstMapWithSubMap))
+	/**
+		 * Okay now my problem is ok, how can i have a map of any / map of maps in the teraform plugin framework ? that is difficult, isn't it ?
+		 *
+		 *  I feel there is a problem with having a terraform resource which may have a varying type like map/any
+		 *
+		 * For that, I found:
+		 *  + https://discuss.hashicorp.com/t/terraform-plugin-framework-map-of-different-value-types/56421
+		 *
+		 *  Ok, After a bit of thinking, here is wht I am going to do:
+	     * ----> To begin with, there will be constraints, not any possible typescript interface will be allowed.
+		 * ----> for each field of the interface, its type can only be a string and that string must be:
+		 * ----> - either "string"
+		 * ----> - either "boolean"
+		 * ----> - either "date"
+		 * ----> - either a string of the form
+	     *        "{
+		 *           \"xxx\":
+		 *         }" // so if there is an embbeded curly braces, only one level is allowed, not more (maybe two in some future, but definitely not more)
+		 * And the first thing to do, is to implement the attribute validations like above.
+		 **/
+	return "quickTest"
+}
+
 // ///////////////////////////
 // To implement: its the reverse of bakeFrontmatterDefFieldsToStrTsInterface
 func (r *contentTypeResource) convertFrontmatterDefStrToMap(ctx context.Context, frontmatter_definition_AsTsInterfaceStr string) types.Map {

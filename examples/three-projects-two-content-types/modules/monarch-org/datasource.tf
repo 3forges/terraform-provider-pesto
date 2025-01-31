@@ -1,4 +1,3 @@
-/*
 data "pesto_projects" "all_three_pesto_projects" {
   depends_on = [
     pesto_project.godzilla_project,
@@ -6,4 +5,3 @@ data "pesto_projects" "all_three_pesto_projects" {
     pesto_project.gidhora_project,
   ]
 }
-*/

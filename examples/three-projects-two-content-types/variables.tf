@@ -1,8 +1,8 @@
 variable "monarch_github_org" {
   description = "The Github org of the Monarch Organization"
   # type        = map(string)
-  type        = string
-  default     = "TheShield"
+  type    = string
+  default = "TheShield"
   # default     = {}
 }
 variable "common_default_frontmatter_def" {

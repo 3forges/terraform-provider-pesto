@@ -2,7 +2,7 @@
  * https://developer.hashicorp.com/terraform/tutorials/modules/module-create
  **/
 module "monarch" {
-  source = "./modules/monarch-org/"
+  source = "./modules/monarch-org"
 
   github_org = var.monarch_github_org
 

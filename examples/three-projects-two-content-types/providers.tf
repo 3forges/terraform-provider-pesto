@@ -1,3 +1,8 @@
+/**
+ * The monarch module requires the 
+ * 'pesto-io.io/terraform/pesto' terraform provider, so
+ * the root module calling the monarch module MUST have that provider in its configuration, period.
+ */
 terraform {
   required_providers {
     pesto = {

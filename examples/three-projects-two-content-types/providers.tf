@@ -22,8 +22,10 @@ provider "pesto" {
   password = "test123"
 }
 
-
-
+terraform {
+  backend "s3" {}
+}
+/*
 terraform {
   backend "s3" {
     bucket = "pesto-terraform-state" # Name of the S3 bucket
@@ -32,9 +34,13 @@ terraform {
     }
     key = "terraform.tfstate" # Name of the tfstate file
 
-    access_key = "UJTblahcQE7Bunc0pnSL" # Access and secret keys
-    secret_key = "EvAGVObs7cEUE22FgkmMTqUZnBHijUd8CXWxDwSU"
-
+    # access_key = "UJTblahcQE7Bunc0pnSL" # Access and secret keys
+    # secret_key = "EvAGVObs7cEUE22FgkmMTqUZnBHijUd8CXWxDwSU"
+    # access_key = "${locals.s3_backend_credentials.accessKey}"
+    # secret_key = "${locals.s3_backend_credentials.secretKey}"
+    access_key = locals.s3_backend_credentials.accessKey
+    secret_key = locals.s3_backend_credentials.secretKey
+    
     region                      = "main" # Region validation will be skipped
     skip_credentials_validation = true   # Skip AWS related checks and validations
     skip_requesting_account_id  = true
@@ -43,5 +49,5 @@ terraform {
     use_path_style              = true # Enable path-style S3 URLs (https://<HOST>/<BUCKET> https://developer.hashicorp.com/terraform/language/settings/backends/s3#use_path_style
   }
 }
-/*
+
 */

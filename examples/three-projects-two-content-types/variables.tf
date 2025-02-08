@@ -10,3 +10,17 @@ variable "common_default_frontmatter_def" {
   type        = map(string)
   default     = {}
 }
+/*
+variable "s3_backend_access_key" {
+  type = any
+  default = jsondecode(file("${path.module}/.secrets/minio.backend.credentials.json")).accessKey
+  // default = try(jsondecode(file("./.secrets/minio.backend.credentials.json")).accessKey, {})
+  // try(jsondecode(file("./.secrets/minio.backend.credentials.json")), {})
+}
+variable "s3_backend_secret_key" {
+  type = any
+  default = jsondecode(file("${path.module}/.secrets/minio.backend.credentials.json")).secretKey
+  // default = try(jsondecode(file("./.secrets/minio.backend.credentials.json")).secretKey, {})
+  // try(jsondecode(file("./.secrets/minio.backend.credentials.json")), {})
+}
+*/

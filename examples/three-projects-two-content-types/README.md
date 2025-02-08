@@ -50,7 +50,29 @@ Now all creation, update, and delete work.
 ```Powershell
 $env:TF_LOG = "debug"
 # export TF_LOG="debug"
+
 tofu init
+
+######
+# crazy thing i found for, even in dev overrides mode, 
+# forcing the tofu init command to successfully find the 
+# terraform provider:
+
+# works in git bash for windows
+
+export WHERE_GO_INSTALL_PUTS_EXE="$(go env GOPATH | sed 's#C:#/c#g' | sed 's#\\#/#g')/bin"
+export BUILT_PROVIDER_EXE_FILEPATH=${WHERE_GO_INSTALL_PUTS_EXE}/terraform-provider-pesto.exe
+
+mkdir -p ${WHERE_GO_INSTALL_PUTS_EXE}/pesto-io.io/terraform/pesto/0.0.1/windows_386/
+
+mkdir -p ${WHERE_GO_INSTALL_PUTS_EXE}/pesto-io.io/terraform/pesto/0.0.1/windows_amd64/
+
+cp ${BUILT_PROVIDER_EXE_FILEPATH} ${WHERE_GO_INSTALL_PUTS_EXE}/pesto-io.io/terraform/pesto/0.0.1/windows_386/terraform-provider-pesto_v0.0.1_windows_386.exe
+
+cp ${BUILT_PROVIDER_EXE_FILEPATH} ${WHERE_GO_INSTALL_PUTS_EXE}/pesto-io.io/terraform/pesto/0.0.1/windows_amd64/terraform-provider-pesto_v0.0.1_windows_amd64.exe
+
+tofu init -plugin-dir="$(go env GOPATH | sed 's#C:##g')\bin" -reconfigure -backend-config=./.secrets/s3.backend.conf
+
 
 tofu validate
 tofu fmt

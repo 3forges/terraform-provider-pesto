@@ -1,49 +1,155 @@
 # Running a Tofu with the pesto provider
 
-This example shows how to create a pesto content type using the terraform provider.
+This example shows how to create, update, delete, import a pesto content type using the Pesto terraform provider.
 
-For the moment, there are still issues, when I create a new Pesto COntent Type I get the below error:
+It assumes that you use an S3 backend, typically a minio service, with a backend configuration file located at `./.secrets/s3.backend.conf`, which content could be, for example:
+
+```conf
+bucket = "pesto-terraform-state" # Name of the S3 bucket
+endpoints = {
+s3 = "http://minio.pesto.io:9000" # Minio endpoint
+}
+key = "terraform.tfstate" # Name of the tfstate file
+
+access_key = "<your S3 access Key>"
+secret_key = "<your S3 secret Key>"
+
+region                      = "main" # Region validation will be skipped
+skip_credentials_validation = true   # Skip AWS related checks and validations
+skip_requesting_account_id  = true
+skip_metadata_api_check     = true
+skip_region_validation      = true
+use_path_style              = true # Enable path-style S3 URLs (https://<HOST>/<BUCKET> https://developer.hashicorp.com/terraform/language/settings/backends/s3#use_path_style
+```
+
+Before running any command, to initialize your terraform backend, you will typically run:
 
 ```bash
-2025-01-04T23:15:38.616+0100 [DEBUG] provider.terraform-provider-pesto.exe: PESTO API CLIENT GO - CREATE PESTO CONTENT TYPE - here is the API Response Body returned from Pesto API: [] : tf_resource_type=pesto_content_type tf_rpc=ApplyResourceChange @caller=C:/Users/Utilisateur/go/pkg/mod/github.com/3forges/pesto-api-client-go@v0.0.12/pestocontenttypes.go:121 @module=pesto tf_provider_addr=pesto-io.io/terraform/pesto tf_req_id=cc8bc2a7-5ba2-7ace-96e9-b6f773f15868 timestamp="2025-01-04T23:15:38.616+0100"
-2025-01-04T23:15:38.616+0100 [DEBUG] provider.terraform-provider-pesto.exe: PESTO API CLIENT GO - CREATE PESTO CONTENT TYPE - Is the API Response Body returned from Pesto API NIL ?: NO API Response Body object is not NIL: @caller=C:/Users/Utilisateur/go/pkg/mod/github.com/3forges/pesto-api-client-go@v0.0.12/pestocontenttypes.go:130 @module=pesto tf_provider_addr=pesto-io.io/terraform/pesto tf_req_id=cc8bc2a7-5ba2-7ace-96e9-b6f773f15868 tf_resource_type=pesto_content_type tf_rpc=ApplyResourceChange timestamp="2025-01-04T23:15:38.616+0100"
-2025-01-04T23:15:38.616+0100 [DEBUG] provider.terraform-provider-pesto.exe: CONTENT TYPE RESOURCE - CREATE - here is the tfsdk response object: &{{tftypes.Object["description":tftypes.String, "frontmatter_definition":tftypes.String, "id":tftypes.String, "last_updated":tftypes.String, "name":tftypes.String, "project_id":tftypes.String]<null> {map[description:{<nil> true false false false    [] [] <nil>} frontmatter_definition:{<nil> true false false false    [] [] <nil>} id:{<nil> false false true false    [] [{}] <nil>} last_updated:{<nil> false false true false    [] [] <nil>} name:{<nil> true false false false    [] [] <nil>} project_id:{<nil> true false false false    [] [] <nil>}] map[]    0}} 0xc000412168 []}: tf_rpc=ApplyResourceChange @caller=C:/Users/Utilisateur/terraform-provider-pesto/internal/provider/content_type_resource.go:157 tf_provider_addr=pesto-io.io/terraform/pesto tf_req_id=cc8bc2a7-5ba2-7ace-96e9-b6f773f15868 tf_resource_type=pesto_content_type @module=pesto timestamp="2025-01-04T23:15:38.616+0100"
-2025-01-04T23:15:38.616+0100 [DEBUG] provider.terraform-provider-pesto.exe: CONTENT TYPE RESOURCE - CREATE - here is the content type returned from Pesto API: <nil>: @caller=C:/Users/Utilisateur/terraform-provider-pesto/internal/provider/content_type_resource.go:158 @module=pesto tf_provider_addr=pesto-io.io/terraform/pesto tf_rpc=ApplyResourceChange tf_req_id=cc8bc2a7-5ba2-7ace-96e9-b6f773f15868 tf_resource_type=pesto_content_type timestamp="2025-01-04T23:15:38.616+0100"
-2025-01-04T23:15:38.616+0100 [WARN]  unexpected data: pesto-io.io/terraform/pesto:stdout="PESTO API CLIENT GO - CREATE PESTO CONTENT TYPE - here is the API Response Body returned from Pesto API: []"
-2025-01-04T23:15:38.616+0100 [WARN]  unexpected data: pesto-io.io/terraform/pesto:stdout="PESTO API CLIENT GO - CREATE PESTO CONTENT TYPE - Is the API Response Body returned from Pesto API NIL ?: NO API Response Body object is not NIL"
-2025-01-04T23:15:38.616+0100 [DEBUG] provider.terraform-provider-pesto.exe: CONTENT TYPE RESOURCE - CREATE - Is the content type returned from Pesto API NIL ?: YES pesto content type object is NIL!: @caller=C:/Users/Utilisateur/terraform-provider-pesto/internal/provider/content_type_resource.go:167 tf_provider_addr=pesto-io.io/terraform/pesto tf_req_id=cc8bc2a7-5ba2-7ace-96e9-b6f773f15868 tf_rpc=ApplyResourceChange tf_resource_type=pesto_content_type @module=pesto timestamp="2025-01-04T23:15:38.616+0100"
-2025-01-04T23:15:38.617+0100 [ERROR] provider.terraform-provider-pesto.exe: Response contains error diagnostic: tf_req_id=cc8bc2a7-5ba2-7ace-96e9-b6f773f15868 tf_proto_version=6.6 tf_resource_type=pesto_content_type diagnostic_detail="Could not create pesto content type, unexpected error: unexpected end of JSON input" diagnostic_severity=ERROR @caller=C:/Users/Utilisateur/go/pkg/mod/github.com/hashicorp/terraform-plugin-go@v0.23.0/tfprotov6/internal/diag/diagnostics.go:58 diagnostic_summary="Error creating pesto content type" tf_provider_addr=pesto-io.io/terraform/pesto tf_rpc=ApplyResourceChange @module=sdk.proto timestamp="2025-01-04T23:15:38.616+0100"
-2025-01-04T23:15:38.617+0100 [DEBUG] State storage *statemgr.Filesystem declined to persist a state snapshot
-2025-01-04T23:15:38.617+0100 [ERROR] vertex "pesto_content_type.contenttype1_with_tofu" error: Error creating pesto content type
-╷
-│ Error: Error creating pesto content type
-│
-│   with pesto_content_type.contenttype1_with_tofu,
-│   on main.tf line 23, in resource "pesto_content_type" "contenttype1_with_tofu":
-│   23: resource "pesto_content_type" "contenttype1_with_tofu" {
-│
-│ Could not create pesto content type, unexpected error: unexpected end of
-│ JSON input
-╵
-2025-01-04T23:15:38.852+0100 [DEBUG] provider.stdio: received EOF, stopping recv loop: err="rpc error: code = Unavailable desc = error reading from server: EOF"
-2025-01-04T23:15:38.871+0100 [DEBUG] provider: plugin process exited: path=/Users/Utilisateur/go/bin/terraform-provider-pesto.exe pid=7024
-2025-01-04T23:15:38.871+0100 [DEBUG] provider: plugin exited
+tofu init -backend-config=./.secrets/s3.backend.conf
+# ---
+# Or with the [-reconfigure] option if you need to
+# force re-initializing your backend config.
+# 
+# tofu init -reconfigure -backend-config=./.secrets/s3.backend.conf
+```
+
+## How to use the Pesto Provider
+
+### Windows
+
+#### Git bash for windows
+
+* Create or update all by running:
+
+```bash
+
+# tofu init
+tofu init -backend-config=./.secrets/s3.backend.conf
+# tofu init -reconfigure -backend-config=./.secrets/s3.backend.conf
+
+tofu validate
+tofu fmt
+
+tofu plan
+tofu apply -auto-approve
+
+# ---
+# To test that when I run 
+# tofu refresh, the READ method is
+# called, I ran:
+# rm tflogs.tosee.logs
+# tofu refresh >> tflogs.tosee.logs 2>&1
+
+rm tflogs.tosee.logs
+tofu validate
+tofu fmt
+
+tofu plan
+tofu apply -auto-approve >> tflogs.tosee.logs 2>&1
+```
+
+* Delete all by running:
+
+```bash
+# ---
+# Destroy it all:
+tofu plan -destroy -out="my.first.destroy.plan.tfplan"; tofu apply "my.first.destroy.plan.tfplan";
 
 ```
 
-The error I get is about an "_unexpected end of JSON input_", and:
-* The pesto content type gets successfully created on the Pesto API side, 
-* but the created PEsto Content Tye is not properly added in the terraform state, because of that error, which causes afterwards that deleting or updating the Pesto Content Type resource is not possible,
-* and well I did found some other terraform issues which seem similar:
-  * <https://github.com/hashicorp/terraform-provider-external/issues/23>
-  * <https://github.com/hashicorp/terraform-provider-google/issues/7449>
+## Pesto Provider Development environment
 
+In this part, we show the pesto provider contributor, how to run this example, with the freshly built provider.
 
-OK I fixed the issue, it's just that the creation endpoint returned HTTP code 204 instead of returning HTTP code 201 with the created object in the API response.
+Note that if you build the provider, you need to setup your environment (among which the `terraformrc`), using the make commands and instrcutions in [the root README.md](../../README.md)
 
-Now all creation, update, and delete work.
+### Windows
 
-## How to use the Pesto Provider
+#### Git bash for windows
+
+* Create or update all by running:
+
+```bash
+# export TF_LOG="debug"
+export TF_LOG="trace"
+
+######
+# ---
+# Dev mode: After every new build of the terraform provider, we
+# must update the checksums of the dependency lock file.
+tofu providers lock  -fs-mirror="$(go env GOPATH | sed 's#C:##g')\bin"
+######
+# ---
+# Dev mode: For the tofu init 
+# command to successfully find the 
+# terraform provider executable, even in dev overrides mode:
+# becaue I pass to the [-plugin-dir=], the path of the folder
+# I configured for the dev_overrides in the "terraformrc".
+# 
+tofu init -plugin-dir="$(go env GOPATH | sed 's#C:##g')\bin" -reconfigure -backend-config=./.secrets/s3.backend.conf
+
+tofu validate
+tofu fmt
+
+tofu plan
+tofu apply -auto-approve
+
+# ---
+# To test that when I run 
+# tofu refresh, the READ method is
+# called, I ran:
+# rm tflogs.tosee.logs
+# tofu refresh >> tflogs.tosee.logs 2>&1
+
+rm tflogs.tosee.logs
+tofu validate
+tofu fmt
+
+tofu plan
+tofu apply -auto-approve >> tflogs.tosee.logs 2>&1
+```
+
+* Delete all by running:
+
+```bash
+# ---
+# Destroy it all:
+tofu plan -destroy -out="my.first.destroy.plan.tfplan"; tofu apply "my.first.destroy.plan.tfplan";
+
+```
+
+* Test creating a pesto project and importing it:
+
+```bash
+# ---
+# Use the Pesto Web UI, a curl request, or the GraphQL Appollo client of the pesto API to create a new project without terraform
+
+```
+
+<!--
+#### Powershell
+
+TODO: the commands to use the [-plugin-dir=] tofu init command option, need to be adapted, e.g. how to run a sed command in powershell
 
 * Create or update all by running:
 
@@ -72,7 +178,6 @@ cp ${BUILT_PROVIDER_EXE_FILEPATH} ${WHERE_GO_INSTALL_PUTS_EXE}/pesto-io.io/terra
 cp ${BUILT_PROVIDER_EXE_FILEPATH} ${WHERE_GO_INSTALL_PUTS_EXE}/pesto-io.io/terraform/pesto/0.0.1/windows_amd64/terraform-provider-pesto_v0.0.1_windows_amd64.exe
 
 tofu init -plugin-dir="$(go env GOPATH | sed 's#C:##g')\bin" -reconfigure -backend-config=./.secrets/s3.backend.conf
-
 
 tofu validate
 tofu fmt
@@ -115,3 +220,12 @@ tofu plan -destroy -out="my.first.destroy.plan.tfplan"; tofu apply "my.first.des
 
 ```
 
+-->
+
+<!--
+
+### GNU/Linux Distributions
+
+* In a bash shell:
+
+-->

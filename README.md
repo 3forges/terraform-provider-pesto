@@ -74,62 +74,30 @@ You will end up with the source code of this provider inside a folder of your ch
 
 ### Windows
 
+#### Step 0: Instlal GNU make
+
+> Keep in mind you can easy add `make`, but it doesn't come packaged with all the standard UNIX build toolchain--so you will have to ensure those are installed *and* on your PATH, or you will encounter endless error messages.
+
+- Go to [ezwinports](https://sourceforge.net/projects/ezwinports/files/).
+- Download `make-4.1-2-without-guile-w32-bin.zip` (get the version without guile).
+- Extract zip.
+- Copy the contents to your `Git\mingw64\` merging the folders, but do NOT overwrite/replace any existing files. 
+
+Credits & thx : <https://gist.github.com/evanwill/0207876c3243bbb6863e65ec5dc3f058#make>
+
 #### Step 1: Prepare the `terraform.rc`
 
 - In git bash for windows, run:
 
 ```bash
-export TF_RC_FILE_PATH=$(echo $APPDATA | sed 's#\\#/#g' | sed 's#C:#/c#g')/terraform.rc
-echo "  TF_RC_FILE_PATH=[${TF_RC_FILE_PATH}]"
-
-
-export MY_GO_BIN_FOLDER=$(go env GOBIN)
-export MY_GO_PATH_FOLDER=$(go env GOPATH)
-
-export MY_NONDEFAULT_GO_BIN_FOLDER=$(echo "$MY_GO_BIN_FOLDER/bin" | sed 's#\\#/#g' | sed 's#C:##g')
-
-export MY_DEFAULT_GO_BIN_FOLDER=$(echo "$HOME/go/bin" | sed 's#\\#/#' | sed 's#/c##g')
-export MY_DEFAULT_GO_BIN_FOLDER=$(echo "$MY_GO_PATH_FOLDER/bin" | sed 's#\\#/#g' | sed 's#C:##g')
-
-echo "MY_GO_BIN_FOLDER=[${MY_GO_BIN_FOLDER}]"
-echo "MY_GO_PATH_FOLDER=[${MY_GO_PATH_FOLDER}]"
-echo "MY_GO_PATH_FOLDER/bin=[${MY_GO_PATH_FOLDER}/bin]"
-echo "MY_DEFAULT_GO_BIN_FOLDER=[${MY_DEFAULT_GO_BIN_FOLDER}]"
-
-# note:
-# > if GOBIN is not empty, then the golang binary will be generated inside the bin subfolder of the 'GOBIN' folder.
-# > if GOBIN is empty, then the golang binary will be generated inside the bin subfolder of the 'GOPATH' folder.
-
-if [ "x${MY_GO_BIN_FOLDER}" == "x" ]; then
-  echo "GO BIN is empty, so will use default"
-  export PATH_FOR_DEV_OVERRIDES="${MY_NONDEFAULT_GO_BIN_FOLDER}"
-else
-  echo "GO BIN is not empty"
-  export PATH_FOR_DEV_OVERRIDES="${MY_DEFAULT_GO_BIN_FOLDER}"
-fi;
-
-
-echo "  PATH_FOR_DEV_OVERRIDES=[${PATH_FOR_DEV_OVERRIDES}]"
-
-
-cat <<EOF >${TF_RC_FILE_PATH}
-provider_installation {
-
-  dev_overrides {
-      # "pesto-io.io/terraform/pesto" = "<PATH>"
-      "pesto-io.io/terraform/pesto" = "${PATH_FOR_DEV_OVERRIDES}"
-      }
-
-  # For all other providers, install them directly from their origin provider
-  # registries as normal. If you omit this, Terraform will _only_ use
-  # the dev_overrides block, and so no other providers will be available.
-  direct {}
-}
-
-EOF
+# ---
+# This make command will backup your terraformrc if 
+# it existed, and generate a new terraformrc, with
+# the desired dev configuration
+. ./.make.env.win.sh; make dev.win.terraformrc
 ```
 
-Above, the `pesto-io.io/terraform/pesto` must match the value set in this block, in the `main.go` of your provider:
+In the generated `terraformrc` file, the `pesto-io.io/terraform/pesto` value must match the value set in this block, in the `main.go` of your provider:
 
 ```Golang
     opts := providerserver.ServeOpts{
@@ -157,10 +125,11 @@ Now we also know that, wen you run `go install .` for a golang project, the buil
 - The bin subfolder of the `GOBIN` folder, if `GOBIN` is not empty.
 - The bin subfolder of the `GOPATH` folder, if `GOBIN` is empty.
 
-This is why, because of the configuration we set in the `terraformrc`, to make our developed terraform provider executable, available to our terraform recipe, we only need to run, either in powershell or git bash for windows :
+This is why, because of the configuration we set in the `terraformrc`, to make our developed terraform provider executable, available to our terraform recipe, we only need to run in git bash for windows :
 
 ```bash
-go install .
+# go install .
+. ./.make.env.win.sh; make dev.win
 ```
 
 ##### Step 3: run a TOFU/terraform recipe using the pesto provider
@@ -225,20 +194,6 @@ In order to run the full suite of Acceptance tests, run `make testacc`.
 make testacc
 ```
 
-
-
 ## The last issue
 
-I have a little bug in my `convertFrontmatterDefStrToMap` method, which triggers this error:
-
-```bash
-
-```
-
-* And indeed in the returned map the `horsepower` attribute is myteriously missing:
-
-```bash
-2025-01-23T20:20:20.320+0100 [DEBUG] provider.terraform-provider-pesto.exe: TERRAFORM PESTO PROVIDER - [convertFrontmatterDefStrToMap] method -  THHEREEEE JBL toReturn is: {"color":"string","max_speed":"number","number_of_doors":"number","second_hand":"boolean","trademark":"string","weight_in_kilograms":"number","year":"string","zero_sixty_time":"number"}: tf_req_id=abff1b15-a7e9-6fdd-fcdd-02d13fde0b26 tf_resource_type=pesto_content_type tf_rpc=ApplyResourceChange @caller=C:/Users/Utilisateur/terraform-provider-pesto/internal/provider/content_type_resource.go:692 @module=pesto tf_provider_addr=pesto-io.io/terraform/pesto timestamp="2025-01-23T20:20:20.320+0100"
-```
-
-
+I don't have any issue in the pipe for now.
